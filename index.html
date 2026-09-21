@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>World Heart Hotel Baghdad - 360° Virtual Tour</title>
+    
+    <!-- خط Tajawal الفاخر -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- مكتبة Pannellum لعرض البانوراما -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    
+    <!-- أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- الهوية البصرية الفاتحة والفاخرة لموقع الفندق --- */
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-surface: #ffffff;
+            --text-primary: #1a202c;
+            --text-muted: #64748b;
+            --hotel-gold: #b89150;
+            --hotel-gold-dark: #967236;
+            --hotel-navy: #0f172a;
+            --border-light: #e2e8f0;
+            --border-gold: rgba(184, 145, 80, 0.35);
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --font-main: 'Tajawal', -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* --- شريط الرأس (Header) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            z-index: 30;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #000000;
+            border: 1.5px solid var(--hotel-gold);
+            object-fit: contain;
+            padding: 3px;
+        }
+
+        .title-container h1 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--hotel-navy);
+            letter-spacing: 0.3px;
+        }
+        
+        .title-container p {
+            font-size: 11px;
+            color: var(--hotel-gold);
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--hotel-gold);
+            color: #fff;
+            border-color: var(--hotel-gold);
+        }
+
+        .icon-only {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        /* --- الحاوية الرئيسية --- */
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viewer-container {
+            flex: 1;
+            position: relative;
+            background-color: #e2e8f0;
+        }
+
+        #panorama {
+            width: 100%;
+            height: 100%;
+        }
+
+        .scene-label-overlay {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            color: var(--hotel-navy);
+            padding: 8px 22px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            white-space: nowrap;
+        }
+
+        .scene-label-overlay i {
+            color: var(--hotel-gold);
+        }
+
+        /* --- شاشة الانتقال المتموجة --- */
+        .blur-loader {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.75);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .blur-loader.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .loader-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-gold);
+            padding: 25px 45px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pulse-icon {
+            font-size: 28px;
+            color: var(--hotel-gold);
+            animation: pulse 1.5s infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+
+        /* --- دليل الاستخدام --- */
+        .guide-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 80;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+        
+        .guide-overlay.active {
+            display: flex;
+        }
+
+        .guide-hand-icon {
+            font-size: 45px;
+            color: var(--hotel-gold);
+            animation: handSwipe 2s infinite ease-in-out;
+            margin-bottom: 15px;
+        }
+
+        @keyframes handSwipe {
+            0% { transform: translateX(-25px); opacity: 0.4; }
+            50% { transform: translateX(25px); opacity: 1; }
+            100% { transform: translateX(-25px); opacity: 0.4; }
+        }
+
+        /* --- لوحة التحكم --- */
+        .nav-panel {
+            background-color: var(--bg-surface);
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 20;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenes-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--hotel-gold) var(--bg-main);
+        }
+
+        .scene-card {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 16px;
+            min-width: 170px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .scene-card:hover, .scene-card.active {
+            border-color: var(--hotel-gold);
+            background-color: rgba(184, 145, 80, 0.08);
+        }
+
+        .scene-card.active .scene-number {
+            background-color: var(--hotel-gold);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .scene-number {
+            background-color: #e2e8f0;
+            color: var(--hotel-navy);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .scene-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* --- شاشة البداية --- */
+        .welcome-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-main);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            background-image: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            overflow-y: auto;
+        }
+
+        .welcome-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .welcome-header-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 500px;
+        }
+
+        .welcome-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #000000;
+            border: 2px solid var(--hotel-gold);
+            padding: 6px;
+            object-fit: contain;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- حركة النجوم ثلاثية الأبعاد (3D Orbit) --- */
+        .hotel-stars-wrapper {
+            perspective: 500px;
+            width: 120px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 4px 0;
+        }
+
+        .hotel-stars-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateStars3D 6s linear infinite;
+        }
+
+        .hotel-stars-3d i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            color: var(--hotel-gold);
+            font-size: 14px;
+            margin-top: -7px;
+            margin-left: -7px;
+            transform: rotateY(calc(var(--i) * 72deg)) translateZ(42px);
+            filter: drop-shadow(0 2px 4px rgba(184, 145, 80, 0.4));
+        }
+
+        @keyframes rotateStars3D {
+            0% {
+                transform: rotateX(-15deg) rotateY(0deg);
+            }
+            100% {
+                transform: rotateX(-15deg) rotateY(360deg);
+            }
+        }
+
+        .welcome-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--hotel-navy);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .welcome-title p {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .welcome-categories-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 460px;
+            margin: 20px 0 0 0;
+        }
+
+        .cat-stack-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .cat-stack-item:hover {
+            border-color: var(--hotel-gold);
+            background: rgba(184, 145, 80, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .cat-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .cat-icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: rgba(184, 145, 80, 0.1);
+            border: 1px solid var(--border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hotel-gold);
+            font-size: 18px;
+        }
+
+        .cat-text-wrap {
+            text-align: right;
+        }
+
+        html[dir="ltr"] .cat-text-wrap {
+            text-align: left;
+        }
+
+        .cat-text-wrap .cat-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--hotel-navy);
+        }
+
+        .cat-text-wrap .cat-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* --- نافذة البحث --- */
+        .search-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 80px;
+            backdrop-filter: blur(8px);
+        }
+
+        .search-overlay.active {
+            display: flex;
+        }
+
+        .close-search {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            color: var(--hotel-navy);
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .search-input {
+            width: 85%;
+            max-width: 480px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--hotel-gold);
+            outline: none;
+            font-size: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .search-results {
+            width: 85%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            background: #fff;
+            padding: 14px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-light);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--hotel-navy);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .search-result-item:hover {
+            border-color: var(--hotel-gold);
+            color: var(--hotel-gold);
+            background-color: rgba(184, 145, 80, 0.05);
+        }
+
+        @media (min-width: 768px) {
+            .main-wrapper { flex-direction: row; }
+            .nav-panel { width: 330px; border-right: 1px solid var(--border-light); border-top: none; }
+            .scenes-list { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+            .scene-card { min-width: unset; }
+            .welcome-title h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة البداية -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-header-box">
+            <!-- الشعار الرسمي -->
+            <img src="logo.png" alt="World Heart Hotel Logo" class="welcome-logo" id="mainLogo">
+            
+            <!-- نجوم ثلاثية الأبعاد متحركة بمسار دائري -->
+            <div class="hotel-stars-wrapper">
+                <div class="hotel-stars-3d">
+                    <i class="fas fa-star" style="--i:0;"></i>
+                    <i class="fas fa-star" style="--i:1;"></i>
+                    <i class="fas fa-star" style="--i:2;"></i>
+                    <i class="fas fa-star" style="--i:3;"></i>
+                    <i class="fas fa-star" style="--i:4;"></i>
+                </div>
+            </div>
+
+            <div class="welcome-title">
+                <h1 data-i18n="hotel_title">فندق قلب العالم</h1>
+                <p data-i18n="welcome_subtitle">حدد القسم المطلوب لبدء الجولة التفاعلية 360°</p>
+            </div>
+        </div>
+
+        <div class="welcome-categories-stack">
+            <div class="cat-stack-item" onclick="startTourWithCategory('rooms')">
+                <div class="cat-info">
+                    <div class="cat-icon-wrap"><i class="fas fa-bed"></i></div>
+                    <div class="cat-text-wrap">
+                        <div class="cat-title" data-i18n="cat_rooms">الغرف والأجنحة الفاخرة</div>
+                        <div class="cat-sub" data-i18n="sub_rooms">استعرض جناح السفير والغرف الملكية</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+
+            <div class="cat-stack-item" onclick="startTourWithCategory('meetings')">
+                <div class="cat-info">
+                    <div class="cat-icon-wrap"><i class="fas fa-handshake"></i></div>
+                    <div class="cat-text-wrap">
+                        <div class="cat-title" data-i18n="cat_meetings">قاعات الاجتماعات والفعاليات</div>
+                        <div class="cat-sub" data-i18n="sub_meetings">قاعات مؤتمرات مجهزة بأحدث التقنيات</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+
+            <div class="cat-stack-item" onclick="startTourWithCategory('dining')">
+                <div class="cat-info">
+                    <div class="cat-icon-wrap"><i class="fas fa-utensils"></i></div>
+                    <div class="cat-text-wrap">
+                        <div class="cat-title" data-i18n="cat_dining">المطاعم والجلسات (AZZURRO)</div>
+                        <div class="cat-sub" data-i18n="sub_dining">استكشف مطعم أزور والمطاعم المتميزة</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+
+            <div class="cat-stack-item" onclick="startTourWithCategory('gym')">
+                <div class="cat-info">
+                    <div class="cat-icon-wrap"><i class="fas fa-dumbbell"></i></div>
+                    <div class="cat-text-wrap">
+                        <div class="cat-title" data-i18n="cat_gym">المركز الرياضي والسبا</div>
+                        <div class="cat-sub" data-i18n="sub_gym">أجهزة لياقة بدنية وحديثة مع السبا</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+
+            <div class="cat-stack-item" onclick="startTourWithCategory('lobby')">
+                <div class="cat-info">
+                    <div class="cat-icon-wrap"><i class="fas fa-hotel"></i></div>
+                    <div class="cat-text-wrap">
+                        <div class="cat-title" data-i18n="cat_lobby">المدخل الرئيسي واللوبي</div>
+                        <div class="cat-sub" data-i18n="sub_lobby">الواجهة الخارجية والاستقبال الملكي</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط الرأس العلوي -->
+    <header>
+        <div class="header-brand">
+            <!-- الشعار الرسمي للشريط العلوي -->
+            <img src="logo.png" alt="World Heart Hotel Logo" class="header-logo" id="headerLogo">
+            <div class="title-container">
+                <h1 data-i18n="hotel_title">فندق قلب العالم</h1>
+                <p data-i18n="tour_360">الجولة الافتراضية 360°</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action" onclick="toggleLanguage()" id="langBtn">
+                <i class="fas fa-globe"></i> <span id="langText">English</span>
+            </button>
+            <button class="btn-action icon-only" onclick="openSearch()"><i class="fas fa-search"></i></button>
+            <button class="btn-action icon-only" onclick="shareTour()"><i class="fas fa-share-nodes"></i></button>
+        </div>
+    </header>
+
+    <!-- منطقة العرض الرئيسية -->
+    <div class="main-wrapper">
+        <div class="viewer-container">
+            <div class="scene-label-overlay">
+                <i class="fas fa-compass"></i> <span id="currentSceneName">...</span>
+            </div>
+            
+            <div class="blur-loader" id="blurLoader">
+                <div class="loader-card">
+                    <div class="pulse-icon"><i class="fas fa-walking"></i></div>
+                    <div style="font-size: 12px; color: var(--text-muted);" data-i18n="moving_to">جاري الانتقال إلى</div>
+                    <div id="targetSceneName" style="font-weight: bold; color: var(--hotel-navy); font-size: 15px; margin-top:4px;">...</div>
+                </div>
+            </div>
+
+            <div class="guide-overlay" id="guideOverlay" onclick="closeGuide()">
+                <div class="guide-hand-icon"><i class="fas fa-hand-pointer"></i></div>
+                <div style="font-size: 15px; font-weight: 500; max-width: 300px;" data-i18n="guide_text">اسحب باللمس أو الماوس للتحريك والتدوير 360°</div>
+                <div style="margin-top: 16px; font-size: 12px; color: #cbd5e1;" data-i18n="click_to_continue">انقر في أي مكان للبدء</div>
+            </div>
+
+            <div id="panorama"></div>
+        </div>
+
+        <!-- القائمة الجانبية/السفلية -->
+        <div class="nav-panel">
+            <div class="controls-row">
+                <button class="btn-action" onclick="toggleWelcomeScreen()"><i class="fas fa-list-ul"></i> <span data-i18n="categories">تغيير القسم</span></button>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-action icon-only" onclick="prevScene()" title="السابق"><i class="fas fa-chevron-right" id="prevIcon"></i></button>
+                    <button class="btn-action icon-only" onclick="nextScene()" title="التالي"><i class="fas fa-chevron-left" id="nextIcon"></i></button>
+                    <button class="btn-action icon-only" onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+
+            <div class="scenes-list" id="scenesList"></div>
+        </div>
+    </div>
+
+    <!-- نافذة البحث -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="close-search" onclick="closeSearch()"><i class="fas fa-times"></i></div>
+        <input type="text" class="search-input" id="searchInput" placeholder="ابحث..." oninput="filterSearch()">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <script>
+        const i18n = {
+            ar: {
+                hotel_title: "فندق قلب العالم",
+                tour_360: "الجولة الافتراضية 360°",
+                welcome_subtitle: "حدد القسم المطلوب لبدء الجولة التفاعلية 360°",
+                cat_rooms: "الغرف والأجنحة الفاخرة",
+                sub_rooms: "استعرض جناح السفير والغرف الملكية",
+                cat_meetings: "قاعات الاجتماعات والفعاليات",
+                sub_meetings: "قاعات مؤتمرات مجهزة بأحدث التقنيات",
+                cat_dining: "المطاعم والجلسات (AZZURRO)",
+                sub_dining: "استكشف مطعم أزور والمطاعم المتميزة",
+                cat_gym: "المركز الرياضي والسبا",
+                sub_gym: "أجهزة لياقة بدنية وحديثة مع السبا",
+                cat_lobby: "المدخل الرئيسي واللوبي",
+                sub_lobby: "الواجهة الخارجية والاستقبال الملكي",
+                moving_to: "جاري الانتقال إلى",
+                guide_text: "اسحب باللمس أو الماوس للتحريك والتدوير 360°",
+                click_to_continue: "انقر في أي مكان للبدء",
+                categories: "تغيير القسم",
+                search_placeholder: "ابحث عن جناح، مطعم، مسبح...",
+                no_results: "لا توجد نتائج متطابقة",
+                link_copied: "تم نسخ رابط الجولة الافتراضية!"
+            },
+            en: {
+                hotel_title: "World Heart Hotel",
+                tour_360: "360° Virtual Tour",
+                welcome_subtitle: "Select a section to start your 360° virtual experience",
+                cat_rooms: "Luxury Rooms & Suites",
+                sub_rooms: "Explore Royal Ambassador Suite and Deluxe Rooms",
+                cat_meetings: "Meeting & Event Halls",
+                sub_meetings: "State-of-the-art conference facilities",
+                cat_dining: "Restaurants & Dining (AZZURRO)",
+                sub_dining: "Discover AZZURRO restaurant & fine dining",
+                cat_gym: "Fitness Center & Spa",
+                sub_gym: "Modern gym equipment and wellness spa",
+                cat_lobby: "Main Entrance & Lobby",
+                sub_lobby: "Exterior facade and grand lobby",
+                moving_to: "Navigating to",
+                guide_text: "Drag with touch or mouse to rotate 360°",
+                click_to_continue: "Click anywhere to continue",
+                categories: "Change Section",
+                search_placeholder: "Search suite, restaurant, gym...",
+                no_results: "No matching results found",
+                link_copied: "Virtual tour link copied to clipboard!"
+            }
+        };
+
+        const scenesData = [
+            {
+                id: 'lobby',
+                category: 'lobby',
+                name: { ar: 'المدخل الرئيسي واللوبي', en: 'Main Entrance & Lobby' },
+                image: 'https://pannellum.org/images/alma.jpg',
+                pitch: 0, yaw: 0,
+                hotspots: [
+                    { pitch: -2, yaw: 40, targetScene: 'suite', text: { ar: 'انتقال إلى جناح السفير الملكي', en: 'Go to Royal Ambassador Suite' } },
+                    { pitch: -4, yaw: -50, targetScene: 'azzurro', text: { ar: 'انتقال إلى مطعم AZZURRO', en: 'Go to AZZURRO Restaurant' } }
+                ]
+            },
+            {
+                id: 'suite',
+                category: 'rooms',
+                name: { ar: 'جناح السفير الملكي', en: 'Royal Ambassador Suite' },
+                image: 'https://pannellum.org/images/cerro-paranal.jpg',
+                pitch: 0, yaw: 90,
+                hotspots: [
+                    { pitch: -5, yaw: 180, targetScene: 'lobby', text: { ar: 'العودة إلى اللوبي', en: 'Back to Lobby' } },
+                    { pitch: -2, yaw: -30, targetScene: 'deluxe', text: { ar: 'غرفة الديلوكس الفاخرة', en: 'Deluxe Luxury Room' } }
+                ]
+            },
+            {
+                id: 'deluxe',
+                category: 'rooms',
+                name: { ar: 'غرفة ديلوكس فاخرة', en: 'Deluxe Luxury Room' },
+                image: 'https://pannellum.org/images/boulder.jpg',
+                pitch: 0, yaw: 0,
+                hotspots: [
+                    { pitch: -5, yaw: 160, targetScene: 'suite', text: { ar: 'العودة للجناح الملكي', en: 'Back to Royal Suite' } }
+                ]
+            },
+            {
+                id: 'meeting_room',
+                category: 'meetings',
+                name: { ar: 'قاعة الاجتماعات والفعاليات', en: 'Meeting & Events Hall' },
+                image: 'https://pannellum.org/images/alma.jpg',
+                pitch: 0, yaw: 0,
+                hotspots: [
+                    { pitch: -5, yaw: 170, targetScene: 'lobby', text: { ar: 'العودة للوبي', en: 'Back to Lobby' } }
+                ]
+            },
+            {
+                id: 'azzurro',
+                category: 'dining',
+                name: { ar: 'مطعم أزور (AZZURRO)', en: 'AZZURRO Restaurant' },
+                image: 'https://pannellum.org/images/cerro-paranal.jpg',
+                pitch: 0, yaw: 0,
+                hotspots: [
+                    { pitch: -3, yaw: 140, targetScene: 'lobby', text: { ar: 'العودة للوبي', en: 'Back to Lobby' } },
+                    { pitch: -5, yaw: -60, targetScene: 'gym', text: { ar: 'الانتقال للسبا والجيم', en: 'Go to Spa & Gym' } }
+                ]
+            },
+            {
+                id: 'gym',
+                category: 'gym',
+                name: { ar: 'الصالة الرياضية والسبا', en: 'Fitness Center & Spa' },
+                image: 'https://pannellum.org/images/boulder.jpg',
+                pitch: 0, yaw: 0,
+                hotspots: [
+                    { pitch: -4, yaw: 180, targetScene: 'azzurro', text: { ar: 'العودة لمطعم AZZURRO', en: 'Back to AZZURRO' } }
+                ]
+            }
+        ];
+
+        let currentLang = 'ar';
+        let currentCategory = 'rooms';
+        let currentSceneIndex = 0;
+        let viewer = null;
+        let hasSeenGuide = false;
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+            document.getElementById('langText').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+
+            document.querySelectorAll('[data-i18n]').forEach(elem => {
+                const key = elem.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) {
+                    elem.innerText = i18n[currentLang][key];
+                }
+            });
+
+            document.getElementById('searchInput').placeholder = i18n[currentLang].search_placeholder;
+
+            const prevIcon = document.getElementById('prevIcon');
+            const nextIcon = document.getElementById('nextIcon');
+            
+            if (currentLang === 'ar') {
+                prevIcon.className = 'fas fa-chevron-right';
+                nextIcon.className = 'fas fa-chevron-left';
+            } else {
+                prevIcon.className = 'fas fa-chevron-left';
+                nextIcon.className = 'fas fa-chevron-right';
+            }
+
+            document.querySelectorAll('.arrow-icon').forEach(icon => {
+                icon.className = currentLang === 'ar' ? 'fas fa-chevron-left arrow-icon' : 'fas fa-chevron-right arrow-icon';
+            });
+
+            renderScenesList();
+            updateUI();
+
+            if (viewer) {
+                reloadPannellumScenes();
+            }
+        }
+
+        function reloadPannellumScenes() {
+            const pannellumScenes = {};
+
+            scenesData.forEach(scene => {
+                pannellumScenes[scene.id] = {
+                    title: scene.name[currentLang],
+                    type: 'equirectangular',
+                    panorama: scene.image,
+                    pitch: scene.pitch || 0,
+                    yaw: scene.yaw || 0,
+                    hfov: 100,
+                    autoLoad: true,
+                    hotSpots: scene.hotspots.map(hs => ({
+                        pitch: hs.pitch,
+                        yaw: hs.yaw,
+                        type: 'scene',
+                        text: hs.text[currentLang],
+                        sceneId: hs.targetScene
+                    }))
+                };
+            });
+
+            if (!viewer) {
+                viewer = pannellum.viewer('panorama', {
+                    default: {
+                        firstScene: scenesData[0].id,
+                        author: "World Heart Hotel",
+                        sceneFadeDuration: 800,
+                        showControls: false
+                    },
+                    scenes: pannellumScenes
+                });
+
+                viewer.on('scenechange', function(sceneId) {
+                    const foundIndex = scenesData.findIndex(s => s.id === sceneId);
+                    if (foundIndex !== -1) {
+                        currentSceneIndex = foundIndex;
+                        updateUI();
+                        showBlurLoader(scenesData[foundIndex].name[currentLang]);
+                    }
+                });
+
+                viewer.on('load', function() {
+                    hideBlurLoader();
+                });
+            } else {
+                viewer.destroy();
+                viewer = null;
+                reloadPannellumScenes();
+                viewer.loadScene(scenesData[currentSceneIndex].id);
+            }
+        }
+
+        function startTourWithCategory(category) {
+            currentCategory = category;
+            document.getElementById('welcomeOverlay').classList.add('hidden');
+            
+            if (!viewer) {
+                reloadPannellumScenes();
+            }
+
+            renderScenesList();
+
+            const filtered = getFilteredScenes();
+            if (filtered.length > 0) {
+                const targetIndex = scenesData.findIndex(s => s.id === filtered[0].id);
+                switchScene(targetIndex);
+            }
+
+            if (!hasSeenGuide) {
+                document.getElementById('guideOverlay').classList.add('active');
+                hasSeenGuide = true;
+            }
+        }
+
+        function toggleWelcomeScreen() {
+            document.getElementById('welcomeOverlay').classList.remove('hidden');
+        }
+
+        function closeGuide() {
+            document.getElementById('guideOverlay').classList.remove('active');
+        }
+
+        function getFilteredScenes() {
+            return scenesData.filter(s => s.category === currentCategory);
+        }
+
+        function renderScenesList() {
+            const container = document.getElementById('scenesList');
+            container.innerHTML = '';
+
+            const list = getFilteredScenes();
+            list.forEach((scene, index) => {
+                const realIndex = scenesData.findIndex(s => s.id === scene.id);
+                const card = document.createElement('div');
+                card.className = `scene-card ${realIndex === currentSceneIndex ? 'active' : ''}`;
+                card.onclick = () => switchScene(realIndex);
+
+                card.innerHTML = `
+                    <div class="scene-number">${index + 1}</div>
+                    <div class="scene-name">${scene.name[currentLang]}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function switchScene(index) {
+            if (index < 0 || index >= scenesData.length) return;
+            currentSceneIndex = index;
+            const targetScene = scenesData[index];
+            showBlurLoader(targetScene.name[currentLang]);
+            viewer.loadScene(targetScene.id);
+            updateUI();
+        }
+
+        function nextScene() {
+            const filtered = getFilteredScenes();
+            const currentSubIndex = filtered.findIndex(s => s.id === scenesData[currentSceneIndex].id);
+            const nextSubIndex = (currentSubIndex + 1) % filtered.length;
+            const targetRealIndex = scenesData.findIndex(s => s.id === filtered[nextSubIndex].id);
+            switchScene(targetRealIndex);
+        }
+
+        function prevScene() {
+            const filtered = getFilteredScenes();
+            const currentSubIndex = filtered.findIndex(s => s.id === scenesData[currentSceneIndex].id);
+            const prevSubIndex = (currentSubIndex - 1 + filtered.length) % filtered.length;
+            const targetRealIndex = scenesData.findIndex(s => s.id === filtered[prevSubIndex].id);
+            switchScene(targetRealIndex);
+        }
+
+        function updateUI() {
+            const currentScene = scenesData[currentSceneIndex];
+            document.getElementById('currentSceneName').innerText = currentScene.name[currentLang];
+            renderScenesList();
+        }
+
+        function showBlurLoader(sceneName) {
+            const loader = document.getElementById('blurLoader');
+            document.getElementById('targetSceneName').innerText = sceneName;
+            loader.classList.add('active');
+        }
+
+        function hideBlurLoader() {
+            document.getElementById('blurLoader').classList.remove('active');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function openSearch() {
+            document.getElementById('searchOverlay').classList.add('active');
+            document.getElementById('searchInput').focus();
+            filterSearch();
+        }
+
+        function closeSearch() {
+            document.getElementById('searchOverlay').classList.remove('active');
+        }
+
+        function filterSearch() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+
+            const filtered = scenesData.filter(s => s.name[currentLang].toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">${i18n[currentLang].no_results}</div>`;
+                return;
+            }
+
+            filtered.forEach(scene => {
+                const realIndex = scenesData.findIndex(s => s.id === scene.id);
+                const item = document.createElement('div');
+                item.className = `search-result-item`;
+                item.innerHTML = `
+                    <span>${scene.name[currentLang]}</span>
+                    <i class="fas fa-chevron-left arrow-icon"></i>
+                `;
+                item.onclick = () => {
+                    closeSearch();
+                    currentCategory = scene.category;
+                    switchScene(realIndex);
+                };
+                resultsContainer.appendChild(item);
+            });
+        }
+
+        function shareTour() {
+            if (navigator.share) {
+                navigator.share({
+                    title: i18n[currentLang].hotel_title,
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert(i18n[currentLang].link_copied);
+            }
+        }
+    </script>
+</body>
+</html>
