@@ -20,9 +20,12 @@
     <style>
         :root {
             --primary-gold: #c5a059;
-            --primary-dark: #0f172a;
-            --overlay-dark: rgba(15, 23, 42, 0.75);
-            --white: #ffffff;
+            --primary-dark: #1e293b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
         }
 
         * {
@@ -34,371 +37,365 @@
 
         body, html {
             width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--primary-dark);
-            color: var(--white);
+            min-height: 100vh;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
         }
 
-        /* --- Header / Logo Section --- */
-        .top-header {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-container {
-            background-color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--primary-gold);
-            transition: transform 0.3s ease;
-        }
-
-        .logo-container:hover {
-            transform: scale(1.03);
-        }
-
-        .logo-container img {
-            height: 48px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        .hotel-name-badge {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 8px 18px;
-            border-radius: 30px;
-            border: 1px solid rgba(197, 160, 89, 0.4);
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--primary-gold);
-            letter-spacing: 0.5px;
-        }
-
-        /* --- Landing Screen --- */
-        #welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 900;
-            background-image: linear-gradient(var(--overlay-dark), var(--overlay-dark)), url('FB_IMG_1789953128146.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+        /* Container */
+        .app-container {
+            max-width: 550px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+        }
+
+        /* Logo & Header Section */
+        .header-section {
             text-align: center;
-            padding: 20px;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            margin-bottom: 25px;
+            width: 100%;
         }
 
-        #welcome-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .welcome-card {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(197, 160, 89, 0.3);
-            padding: 40px 30px;
-            border-radius: 24px;
-            max-width: 650px;
-            width: 90%;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: fadeInUp 1s ease;
-        }
-
-        .welcome-card h1 {
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: var(--white);
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-
-        .welcome-card h1 span {
-            color: var(--primary-gold);
-            display: block;
-            font-size: 1.8rem;
-            margin-top: 5px;
-        }
-
-        .welcome-card p {
-            font-size: 1.1rem;
-            color: #cbd5e1;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .btn-start {
-            background: linear-gradient(135deg, #c5a059 0%, #9a7b3e 100%);
-            color: #ffffff;
-            border: none;
-            padding: 16px 42px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(197, 160, 89, 0.4);
-            transition: all 0.3s ease;
-            display: inline-flex;
+        .logo-wrapper {
+            width: 110px;
+            height: 110px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid var(--primary-gold);
+            overflow: hidden;
         }
 
-        .btn-start:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(197, 160, 89, 0.6);
-            background: linear-gradient(135deg, #d4af66 0%, #a88746 100%);
-        }
-
-        .btn-start i {
-            transition: transform 0.3s ease;
-        }
-
-        .btn-start:hover i {
-            transform: translateX(-5px);
-        }
-
-        /* --- 360 Viewer Container --- */
-        #panorama-container {
+        .logo-wrapper img {
             width: 100%;
             height: 100%;
-            position: absolute;
+            object-fit: contain;
+            padding: 5px;
+        }
+
+        .stars {
+            color: var(--primary-gold);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .hotel-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .hotel-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        /* Category Cards List */
+        .menu-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .menu-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.15);
+            border-color: var(--primary-gold);
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #faf5ed;
+            color: var(--primary-gold);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .card-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-text h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .card-text p {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+        }
+
+        .card-arrow {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            transition: transform 0.25s ease;
+        }
+
+        .menu-card:hover .card-arrow {
+            color: var(--primary-gold);
+            transform: translateX(-4px);
+        }
+
+        /* 360 Panorama View Overlay */
+        #tour-overlay {
+            position: fixed;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 2000;
+            display: none;
         }
 
-        /* --- Scene Navigation Bar --- */
-        .scene-nav {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 800;
-            display: flex;
-            gap: 12px;
+        #tour-overlay.active {
+            display: block;
+        }
+
+        #panorama-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2100;
             background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 10px 18px;
-            border-radius: 40px;
-            border: 1px solid rgba(197, 160, 89, 0.3);
-            max-width: 92vw;
-            overflow-x: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .scene-btn {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #e2e8f0;
-            padding: 8px 18px;
-            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-weight: 700;
             font-size: 0.9rem;
-            font-weight: 600;
             cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .scene-btn:hover, .scene-btn.active {
-            background: var(--primary-gold);
-            color: #ffffff;
-            border-color: var(--primary-gold);
-            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
-        }
-
-        /* Home Button */
-        .btn-home-screen {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(197, 160, 89, 0.4);
-            color: var(--primary-gold);
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .btn-home-screen:hover {
+        .btn-back:hover {
             background: var(--primary-gold);
-            color: #ffffff;
-            transform: scale(1.08);
+            border-color: var(--primary-gold);
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 20px 15px;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .hotel-title {
+                font-size: 1.5rem;
             }
-        }
-
-        @media (max-width: 600px) {
-            .welcome-card h1 {
-                font-size: 1.8rem;
+            .menu-card {
+                padding: 14px 16px;
             }
-            .welcome-card h1 span {
-                font-size: 1.3rem;
-            }
-            .logo-container img {
-                height: 38px;
-            }
-            .hotel-name-badge {
-                display: none;
-            }
-            .top-header {
-                top: 15px;
-                right: 15px;
-            }
-            .btn-home-screen {
-                top: 15px;
-                left: 15px;
+            .card-icon {
+                width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Logo Bar -->
-    <div class="top-header">
-        <div class="logo-container">
-            <img src="logo.png" alt="شعار فندق قلب العالم" onerror="this.style.display='none'; this.parentNode.innerText='شعار الفندق';">
+    <!-- Main White Interface Container -->
+    <div class="app-container" id="main-menu">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="فندق قلب العالم" onerror="this.onerror=null; this.src='FB_IMG_1789953128146.jpg';">
+            </div>
+            <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <h1 class="hotel-title">فندق قلب العالم</h1>
+            <p class="hotel-subtitle">حدد القسم المطلوب لبدء الجولة التفاعلية 360°</p>
         </div>
-        <div class="hotel-name-badge">
-            <i class="fa-solid fa-hotel"></i> فندق قلب العالم
+
+        <!-- Category Menu List -->
+        <div class="menu-list">
+            
+            <div class="menu-card" onclick="openTour('suite', 'الغرف والأجنحة الفاخرة')">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>الغرف والأجنحة الفاخرة</h3>
+                        <p>استعراض جناح السفير والغرف الملكية</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left card-arrow"></i>
+            </div>
+
+            <div class="menu-card" onclick="openTour('halls', 'قاعات الاجتماعات والفعاليات')">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>قاعات الاجتماعات والفعاليات</h3>
+                        <p>قاعات مؤتمرات مجهزة بأحدث التقنيات</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left card-arrow"></i>
+            </div>
+
+            <div class="menu-card" onclick="openTour('restaurant', 'المطاعم والجلسات (AZZURRO)')">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>المطاعم والجلسات (AZZURRO)</h3>
+                        <p>استكشف مطعم أزور والمطاعم المتميزة</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left card-arrow"></i>
+            </div>
+
+            <div class="menu-card" onclick="openTour('gym', 'المركز الرياضي والسبا')">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>المركز الرياضي والسبا</h3>
+                        <p>أجهزة لياقة بدنية وحديثة مع السبا</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left card-arrow"></i>
+            </div>
+
+            <div class="menu-card" onclick="openTour('lobby', 'المدخل الرئيسي واللوبي')">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-hotel"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>المدخل الرئيسي واللوبي</h3>
+                        <p>الواجهة الخارجية والاستقبال الملكي</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left card-arrow"></i>
+            </div>
+
         </div>
     </div>
 
-    <!-- Return to Welcome Screen Button -->
-    <button class="btn-home-screen" onclick="showWelcomeScreen()" title="الرجوع للرئيسية">
-        <i class="fa-solid fa-house"></i>
-    </button>
-
-    <!-- Welcome Screen -->
-    <div id="welcome-screen">
-        <div class="welcome-card">
-            <h1>أهلاً بكم في <span>فندق قلب العالم</span></h1>
-            <p>استكشف الفخامة والأناقة في تفاصيل الفندق من خلال جولة افتراضية تفاعلية بتقنية 360 درجة.</p>
-            <button class="btn-start" onclick="startTour()">
-                <span>ابدأ الجولة الافتراضية</span>
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- 360 Panorama Viewer Area -->
-    <div id="panorama-container"></div>
-
-    <!-- Scene Navigation -->
-    <div class="scene-nav">
-        <button class="scene-btn active" onclick="loadScene('entrance', this)">
-            <i class="fa-solid fa-door-open"></i> المدخل الرئيسي
+    <!-- 360 Panorama View Section -->
+    <div id="tour-overlay">
+        <button class="btn-back" onclick="closeTour()">
+            <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
         </button>
-        <button class="scene-btn" onclick="loadScene('lobby', this)">
-            <i class="fa-solid fa-couch"></i> اللوبي والاستقبال
-        </button>
-        <button class="scene-btn" onclick="loadScene('suite', this)">
-            <i class="fa-solid fa-bed"></i> الأجنحة الفاخرة
-        </button>
-        <button class="scene-btn" onclick="loadScene('restaurant', this)">
-            <i class="fa-solid fa-utensils"></i> المطعم الرئيسي
-        </button>
+        <div id="panorama-view"></div>
     </div>
 
     <script>
-        let viewer;
+        let viewer = null;
 
-        window.addEventListener('load', function() {
-            viewer = pannellum.viewer('panorama-container', {
-                "default": {
-                    "firstScene": "entrance",
-                    "author": "فندق قلب العالم",
-                    "sceneFadeDuration": 1000,
-                    "autoLoad": true,
-                    "autoRotate": -2,
-                    "compass": false,
-                    "showZoomCtrl": false
-                },
-                "scenes": {
-                    "entrance": {
-                        "title": "المدخل الرئيسي - فندق قلب العالم",
-                        "type": "equirectangular",
-                        "panorama": "FB_IMG_1789953128146.jpg"
-                    },
-                    "lobby": {
-                        "title": "البهو والاستقبال",
-                        "type": "equirectangular",
-                        "panorama": "FB_IMG_1789953128146.jpg"
-                    },
-                    "suite": {
-                        "title": "الجناح الملكي",
-                        "type": "equirectangular",
-                        "panorama": "FB_IMG_1789953128146.jpg"
-                    },
-                    "restaurant": {
-                        "title": "المطعم الأنيق",
-                        "type": "equirectangular",
-                        "panorama": "FB_IMG_1789953128146.jpg"
-                    }
-                }
-            });
-        });
+        const tourScenes = {
+            'suite': {
+                'title': 'الغرف والأجنحة الفاخرة',
+                'panorama': 'FB_IMG_1789953128146.jpg'
+            },
+            'halls': {
+                'title': 'قاعات الاجتماعات والفعاليات',
+                'panorama': 'FB_IMG_1789953128146.jpg'
+            },
+            'restaurant': {
+                'title': 'المطاعم والجلسات (AZZURRO)',
+                'panorama': 'FB_IMG_1789953128146.jpg'
+            },
+            'gym': {
+                'title': 'المركز الرياضي والسبا',
+                'panorama': 'FB_IMG_1789953128146.jpg'
+            },
+            'lobby': {
+                'title': 'المدخل الرئيسي واللوبي',
+                'panorama': 'FB_IMG_1789953128146.jpg'
+            }
+        };
 
-        function startTour() {
-            document.getElementById('welcome-screen').classList.add('hidden');
-        }
+        function openTour(sceneKey, sceneTitle) {
+            document.getElementById('tour-overlay').classList.add('active');
+            
+            const sceneConfig = tourScenes[sceneKey] || tourScenes['lobby'];
 
-        function showWelcomeScreen() {
-            document.getElementById('welcome-screen').classList.remove('hidden');
-        }
-
-        function loadScene(sceneId, btnElement) {
             if (viewer) {
-                viewer.loadScene(sceneId);
+                viewer.destroy();
             }
-            let buttons = document.querySelectorAll('.scene-btn');
-            buttons.forEach(function(btn) {
-                btn.classList.remove('active');
+
+            viewer = pannellum.viewer('panorama-view', {
+                "type": "equirectangular",
+                "panorama": sceneConfig.panorama,
+                "title": sceneConfig.title,
+                "autoLoad": true,
+                "autoRotate": -2,
+                "compass": false,
+                "showZoomCtrl": true
             });
-            if (btnElement) {
-                btnElement.classList.add('active');
+        }
+
+        function closeTour() {
+            document.getElementById('tour-overlay').classList.remove('active');
+            if (viewer) {
+                viewer.destroy();
+                viewer = null;
             }
-            document.getElementById('welcome-screen').classList.add('hidden');
         }
     </script>
 </body>
