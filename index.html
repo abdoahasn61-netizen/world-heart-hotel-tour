@@ -61,7 +61,6 @@
             width: 100%;
         }
 
-        /* تعديل أبعاد دائرة الشعار وترتيبها */
         .logo-wrapper {
             width: 120px;
             height: 120px;
@@ -77,7 +76,6 @@
             position: relative;
         }
 
-        /* تعديل احتواء صورة الشعار لتغطي الدائرة بشكل متناسق */
         .logo-wrapper img {
             width: 100%;
             height: 100%;
@@ -231,6 +229,53 @@
             border-color: var(--primary-gold);
         }
 
+        /* شريط التنقل السفلي السريع داخل شاشة العرض 360 */
+        .scene-nav {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2100;
+            display: flex;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            max-width: 94vw;
+            overflow-x: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            white-space: nowrap;
+        }
+
+        .scene-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scene-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scene-btn:hover, .scene-btn.active {
+            background: var(--primary-gold);
+            color: #ffffff;
+            border-color: var(--primary-gold);
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+        }
+
         @media (max-width: 480px) {
             .app-container {
                 padding: 20px 15px;
@@ -249,6 +294,10 @@
             .logo-wrapper {
                 width: 110px;
                 height: 110px;
+            }
+            .scene-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -276,7 +325,7 @@
         <!-- Category Menu List -->
         <div class="menu-list">
             
-            <div class="menu-card" onclick="openTour('suite', 'الغرف والأجنحة الفاخرة')">
+            <div class="menu-card" onclick="openTour('suite')">
                 <div class="card-content">
                     <div class="card-icon">
                         <i class="fa-solid fa-bed"></i>
@@ -289,7 +338,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </div>
 
-            <div class="menu-card" onclick="openTour('halls', 'قاعات الاجتماعات والفعاليات')">
+            <div class="menu-card" onclick="openTour('halls')">
                 <div class="card-content">
                     <div class="card-icon">
                         <i class="fa-solid fa-handshake"></i>
@@ -302,7 +351,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </div>
 
-            <div class="menu-card" onclick="openTour('restaurant', 'المطاعم والجلسات (AZZURRO)')">
+            <div class="menu-card" onclick="openTour('restaurant')">
                 <div class="card-content">
                     <div class="card-icon">
                         <i class="fa-solid fa-utensils"></i>
@@ -315,7 +364,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </div>
 
-            <div class="menu-card" onclick="openTour('gym', 'المركز الرياضي والسبا')">
+            <div class="menu-card" onclick="openTour('gym')">
                 <div class="card-content">
                     <div class="card-icon">
                         <i class="fa-solid fa-dumbbell"></i>
@@ -328,7 +377,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </div>
 
-            <div class="menu-card" onclick="openTour('lobby', 'المدخل الرئيسي واللوبي')">
+            <div class="menu-card" onclick="openTour('lobby')">
                 <div class="card-content">
                     <div class="card-icon">
                         <i class="fa-solid fa-hotel"></i>
@@ -349,7 +398,27 @@
         <button class="btn-back" onclick="closeTour()">
             <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
         </button>
+
         <div id="panorama-view"></div>
+
+        <!-- شريط التنقل السريع في أسفل الجولة -->
+        <div class="scene-nav">
+            <button class="scene-btn" data-scene="suite" onclick="switchScene('suite')">
+                <i class="fa-solid fa-bed"></i> الغرف والأجنحة
+            </button>
+            <button class="scene-btn" data-scene="halls" onclick="switchScene('halls')">
+                <i class="fa-solid fa-handshake"></i> قاعات الفعاليات
+            </button>
+            <button class="scene-btn" data-scene="restaurant" onclick="switchScene('restaurant')">
+                <i class="fa-solid fa-utensils"></i> المطاعم
+            </button>
+            <button class="scene-btn" data-scene="gym" onclick="switchScene('gym')">
+                <i class="fa-solid fa-dumbbell"></i> المركز الرياضي
+            </button>
+            <button class="scene-btn" data-scene="lobby" onclick="switchScene('lobby')">
+                <i class="fa-solid fa-hotel"></i> المدخل واللوبي
+            </button>
+        </div>
     </div>
 
     <script>
@@ -378,10 +447,22 @@
             }
         };
 
-        function openTour(sceneKey, sceneTitle) {
+        function openTour(sceneKey) {
             document.getElementById('tour-overlay').classList.add('active');
-            
+            switchScene(sceneKey);
+        }
+
+        function switchScene(sceneKey) {
             const sceneConfig = tourScenes[sceneKey] || tourScenes['lobby'];
+
+            // تحديد الزر المفعل في الشريط السفلي
+            document.querySelectorAll('.scene-btn').forEach(btn => {
+                if (btn.getAttribute('data-scene') === sceneKey) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
 
             if (viewer) {
                 viewer.destroy();
