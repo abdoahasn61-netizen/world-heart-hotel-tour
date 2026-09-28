@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فندق قلب العالم - الجولة الافتراضية 360° | World Heart Hotel</title>
+    <title>World Heart Hotel - 360° Virtual Tour</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,12 +43,43 @@
             overflow-x: hidden;
         }
 
+        /* Top Bar & Language Switcher */
+        .top-bar {
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 20px 0 20px;
+            margin: 0 auto;
+        }
+
+        .lang-btn {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--primary-dark);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
+        }
+
         /* Container */
         .app-container {
             max-width: 550px;
             margin: 0 auto;
-            padding: 30px 20px;
-            min-height: 100vh;
+            padding: 15px 20px 30px 20px;
+            min-height: calc(100vh - 50px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -177,8 +208,15 @@
             transition: transform 0.25s ease;
         }
 
-        .menu-card:hover .card-arrow {
-            color: var(--primary-gold);
+        html[dir="ltr"] .card-arrow {
+            transform: rotate(180deg);
+        }
+
+        html[dir="ltr"] .menu-card:hover .card-arrow {
+            transform: rotate(180deg) translateX(-4px);
+        }
+
+        html[dir="rtl"] .menu-card:hover .card-arrow {
             transform: translateX(-4px);
         }
 
@@ -206,7 +244,6 @@
         .btn-back {
             position: absolute;
             top: 20px;
-            right: 20px;
             z-index: 2100;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(8px);
@@ -224,12 +261,20 @@
             transition: all 0.3s ease;
         }
 
+        html[dir="ltr"] .btn-back {
+            left: 20px;
+        }
+
+        html[dir="rtl"] .btn-back {
+            right: 20px;
+        }
+
         .btn-back:hover {
             background: var(--primary-gold);
             border-color: var(--primary-gold);
         }
 
-        /* شريط التنقل السفلي السريع داخل شاشة العرض 360 */
+        /* Bottom Scene Nav Bar */
         .scene-nav {
             position: absolute;
             bottom: 25px;
@@ -278,7 +323,7 @@
 
         @media (max-width: 480px) {
             .app-container {
-                padding: 20px 15px;
+                padding: 15px 15px 25px 15px;
             }
             .hotel-title {
                 font-size: 1.5rem;
@@ -304,12 +349,20 @@
 </head>
 <body>
 
-    <!-- Main White Interface Container -->
+    <!-- Language Switcher Bar -->
+    <div class="top-bar">
+        <button class="lang-btn" onclick="toggleLanguage()">
+            <i class="fa-solid fa-globe"></i>
+            <span id="lang-btn-text">العربية</span>
+        </button>
+    </div>
+
+    <!-- Main Interface Container -->
     <div class="app-container" id="main-menu">
         <!-- Header -->
         <div class="header-section">
             <div class="logo-wrapper">
-                <img src="logo.png" alt="فندق قلب العالم" onerror="this.onerror=null; this.src='FB_IMG_1789953128146.jpg';">
+                <img src="logo.png" alt="World Heart Hotel" onerror="this.onerror=null; this.src='FB_IMG_1789953128146.jpg';">
             </div>
             <div class="stars">
                 <i class="fa-solid fa-star"></i>
@@ -318,8 +371,8 @@
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
             </div>
-            <h1 class="hotel-title">فندق قلب العالم</h1>
-            <p class="hotel-subtitle">حدد القسم المطلوب لبدء الجولة التفاعلية 360°</p>
+            <h1 class="hotel-title" id="txt-title">World Heart Hotel</h1>
+            <p class="hotel-subtitle" id="txt-subtitle">Select a department to start the interactive 360° tour</p>
         </div>
 
         <!-- Category Menu List -->
@@ -331,8 +384,8 @@
                         <i class="fa-solid fa-bed"></i>
                     </div>
                     <div class="card-text">
-                        <h3>الغرف والأجنحة الفاخرة</h3>
-                        <p>استعراض جناح السفير والغرف الملكية</p>
+                        <h3 id="txt-suite-title">Luxury Rooms & Suites</h3>
+                        <p id="txt-suite-desc">Explore the Ambassador Suite & Royal Rooms</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -344,8 +397,8 @@
                         <i class="fa-solid fa-handshake"></i>
                     </div>
                     <div class="card-text">
-                        <h3>قاعات الاجتماعات والفعاليات</h3>
-                        <p>قاعات مؤتمرات مجهزة بأحدث التقنيات</p>
+                        <h3 id="txt-halls-title">Meeting & Event Halls</h3>
+                        <p id="txt-halls-desc">Conference halls equipped with latest technology</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -357,8 +410,8 @@
                         <i class="fa-solid fa-utensils"></i>
                     </div>
                     <div class="card-text">
-                        <h3>المطاعم والجلسات (AZZURRO)</h3>
-                        <p>استكشف مطعم أزور والمطاعم المتميزة</p>
+                        <h3 id="txt-rest-title">Restaurants & Dining (AZZURRO)</h3>
+                        <p id="txt-rest-desc">Discover Azzurro Restaurant & fine dining</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -370,8 +423,8 @@
                         <i class="fa-solid fa-dumbbell"></i>
                     </div>
                     <div class="card-text">
-                        <h3>المركز الرياضي والسبا</h3>
-                        <p>أجهزة لياقة بدنية وحديثة مع السبا</p>
+                        <h3 id="txt-gym-title">Fitness Center & Spa</h3>
+                        <p id="txt-gym-desc">Modern fitness equipment with spa facilities</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -383,8 +436,8 @@
                         <i class="fa-solid fa-hotel"></i>
                     </div>
                     <div class="card-text">
-                        <h3>المدخل الرئيسي واللوبي</h3>
-                        <p>الواجهة الخارجية والاستقبال الملكي</p>
+                        <h3 id="txt-lobby-title">Main Entrance & Lobby</h3>
+                        <p id="txt-lobby-desc">Exterior view & royal reception area</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -396,96 +449,140 @@
     <!-- 360 Panorama View Section -->
     <div id="tour-overlay">
         <button class="btn-back" onclick="closeTour()">
-            <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
+            <i class="fa-solid fa-arrow-left" id="back-icon"></i> <span id="txt-back">Back to Menu</span>
         </button>
 
         <div id="panorama-view"></div>
 
-        <!-- شريط التنقل السريع في أسفل الجولة -->
+        <!-- Quick Scene Navigation Bar -->
         <div class="scene-nav">
             <button class="scene-btn" data-scene="suite" onclick="switchScene('suite')">
-                <i class="fa-solid fa-bed"></i> الغرف والأجنحة
+                <i class="fa-solid fa-bed"></i> <span id="nav-suite">Rooms & Suites</span>
             </button>
             <button class="scene-btn" data-scene="halls" onclick="switchScene('halls')">
-                <i class="fa-solid fa-handshake"></i> قاعات الفعاليات
+                <i class="fa-solid fa-handshake"></i> <span id="nav-halls">Event Halls</span>
             </button>
             <button class="scene-btn" data-scene="restaurant" onclick="switchScene('restaurant')">
-                <i class="fa-solid fa-utensils"></i> المطاعم
+                <i class="fa-solid fa-utensils"></i> <span id="nav-restaurant">Restaurants</span>
             </button>
             <button class="scene-btn" data-scene="gym" onclick="switchScene('gym')">
-                <i class="fa-solid fa-dumbbell"></i> المركز الرياضي
+                <i class="fa-solid fa-dumbbell"></i> <span id="nav-gym">Fitness Center</span>
             </button>
             <button class="scene-btn" data-scene="lobby" onclick="switchScene('lobby')">
-                <i class="fa-solid fa-hotel"></i> المدخل واللوبي
+                <i class="fa-solid fa-hotel"></i> <span id="nav-lobby">Lobby</span>
             </button>
         </div>
     </div>
 
     <script>
         let viewer = null;
+        let currentLang = 'en'; // Default language set to English
+        let activeSceneKey = 'lobby';
 
-        const tourScenes = {
-            'suite': {
-                'title': 'الغرف والأجنحة الفاخرة',
-                'panorama': 'FB_IMG_1789953128146.jpg'
+        const i18n = {
+            en: {
+                langBtnText: "العربية",
+                title: "World Heart Hotel",
+                subtitle: "Select a department to start the interactive 360° tour",
+                backBtn: "Back to Menu",
+                suiteTitle: "Luxury Rooms & Suites",
+                suiteDesc: "Explore the Ambassador Suite & Royal Rooms",
+                hallsTitle: "Meeting & Event Halls",
+                hallsDesc: "Conference halls equipped with latest technology",
+                restTitle: "Restaurants & Dining (AZZURRO)",
+                restDesc: "Discover Azzurro Restaurant & fine dining",
+                gymTitle: "Fitness Center & Spa",
+                gymDesc: "Modern fitness equipment with spa facilities",
+                lobbyTitle: "Main Entrance & Lobby",
+                lobbyDesc: "Exterior view & royal reception area",
+                
+                navSuite: "Rooms & Suites",
+                navHalls: "Event Halls",
+                navRest: "Restaurants",
+                navGym: "Fitness Center",
+                navLobby: "Lobby",
+
+                scenes: {
+                    suite: "Luxury Rooms & Suites",
+                    halls: "Meeting & Event Halls",
+                    restaurant: "Restaurants & Dining (AZZURRO)",
+                    gym: "Fitness Center & Spa",
+                    lobby: "Main Entrance & Lobby"
+                }
             },
-            'halls': {
-                'title': 'قاعات الاجتماعات والفعاليات',
-                'panorama': 'FB_IMG_1789953128146.jpg'
-            },
-            'restaurant': {
-                'title': 'المطاعم والجلسات (AZZURRO)',
-                'panorama': 'FB_IMG_1789953128146.jpg'
-            },
-            'gym': {
-                'title': 'المركز الرياضي والسبا',
-                'panorama': 'FB_IMG_1789953128146.jpg'
-            },
-            'lobby': {
-                'title': 'المدخل الرئيسي واللوبي',
-                'panorama': 'FB_IMG_1789953128146.jpg'
+            ar: {
+                langBtnText: "English",
+                title: "فندق قلب العالم",
+                subtitle: "حدد القسم المطلوب لبدء الجولة التفاعلية 360°",
+                backBtn: "العودة للقائمة",
+                suiteTitle: "الغرف والأجنحة الفاخرة",
+                suiteDesc: "استعراض جناح السفير والغرف الملكية",
+                hallsTitle: "قاعات الاجتماعات والفعاليات",
+                hallsDesc: "قاعات مؤتمرات مجهزة بأحدث التقنيات",
+                restTitle: "المطاعم والجلسات (AZZURRO)",
+                restDesc: "استكشف مطعم أزور والمطاعم المتميزة",
+                gymTitle: "المركز الرياضي والسبا",
+                gymDesc: "أجهزة لياقة بدنية وحديثة مع السبا",
+                lobbyTitle: "المدخل الرئيسي واللوبي",
+                lobbyDesc: "الواجهة الخارجية والاستقبال الملكي",
+
+                navSuite: "الغرف والأجنحة",
+                navHalls: "قاعات الفعاليات",
+                navRest: "المطاعم",
+                navGym: "المركز الرياضي",
+                navLobby: "المدخل واللوبي",
+
+                scenes: {
+                    suite: "الغرف والأجنحة الفاخرة",
+                    halls: "قاعات الاجتماعات والفعاليات",
+                    restaurant: "المطاعم والجلسات (AZZURRO)",
+                    gym: "المركز الرياضي والسبا",
+                    lobby: "المدخل الرئيسي واللوبي"
+                }
             }
         };
 
-        function openTour(sceneKey) {
-            document.getElementById('tour-overlay').classList.add('active');
-            switchScene(sceneKey);
+        const sceneImages = {
+            'suite': 'FB_IMG_1789953128146.jpg',
+            'halls': 'FB_IMG_1789953128146.jpg',
+            'restaurant': 'FB_IMG_1789953128146.jpg',
+            'gym': 'FB_IMG_1789953128146.jpg',
+            'lobby': 'FB_IMG_1789953128146.jpg'
+        };
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'ar' : 'en';
+            applyLanguage();
         }
 
-        function switchScene(sceneKey) {
-            const sceneConfig = tourScenes[sceneKey] || tourScenes['lobby'];
+        function applyLanguage() {
+            const data = i18n[currentLang];
+            const htmlTag = document.documentElement;
 
-            // تحديد الزر المفعل في الشريط السفلي
-            document.querySelectorAll('.scene-btn').forEach(btn => {
-                if (btn.getAttribute('data-scene') === sceneKey) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
+            htmlTag.setAttribute('lang', currentLang);
+            htmlTag.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
 
-            if (viewer) {
-                viewer.destroy();
-            }
+            // Header & Language Button
+            document.getElementById('lang-btn-text').innerText = data.langBtnText;
+            document.getElementById('txt-title').innerText = data.title;
+            document.getElementById('txt-subtitle').innerText = data.subtitle;
 
-            viewer = pannellum.viewer('panorama-view', {
-                "type": "equirectangular",
-                "panorama": sceneConfig.panorama,
-                "title": sceneConfig.title,
-                "autoLoad": true,
-                "autoRotate": -2,
-                "compass": false,
-                "showZoomCtrl": true
-            });
-        }
+            // Main Menu Cards
+            document.getElementById('txt-suite-title').innerText = data.suiteTitle;
+            document.getElementById('txt-suite-desc').innerText = data.suiteDesc;
 
-        function closeTour() {
-            document.getElementById('tour-overlay').classList.remove('active');
-            if (viewer) {
-                viewer.destroy();
-                viewer = null;
-            }
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('txt-halls-title').innerText = data.hallsTitle;
+            document.getElementById('txt-halls-desc').innerText = data.hallsDesc;
+
+            document.getElementById('txt-rest-title').innerText = data.restTitle;
+            document.getElementById('txt-rest-desc').innerText = data.restDesc;
+
+            document.getElementById('txt-gym-title').innerText = data.gymTitle;
+            document.getElementById('txt-gym-desc').innerText = data.gymDesc;
+
+            document.getElementById('txt-lobby-title').innerText = data.lobbyTitle;
+            document.getElementById('txt-lobby-desc').innerText = data.lobbyDesc;
+
+            // Overlay UI
+            document.getElementById('txt-back').innerText = data.backBtn;
+ 
