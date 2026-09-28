@@ -1,4 +1,4 @@
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -232,12 +232,6 @@
             justify-content: center;
         }
 
-        .fallback-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
         .btn-back {
             position: absolute;
             top: 20px;
@@ -300,7 +294,7 @@
 
     <!-- Language Switcher Bar -->
     <div class="top-bar">
-        <button type="button" class="lang-btn" onclick="toggleLanguage()">
+        <button type="button" class="lang-btn" onclick="window.toggleLanguage()">
             <i class="fa-solid fa-globe"></i>
             <span id="lang-btn-text">English</span>
         </button>
@@ -325,7 +319,7 @@
 
         <!-- Category Menu List -->
         <div class="menu-list">
-            <button type="button" class="menu-card" onclick="openTour('suite')">
+            <button type="button" class="menu-card" onclick="window.openTour('suite')">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
                     <div class="card-text">
@@ -336,7 +330,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </button>
 
-            <button type="button" class="menu-card" onclick="openTour('halls')">
+            <button type="button" class="menu-card" onclick="window.openTour('halls')">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-handshake"></i></div>
                     <div class="card-text">
@@ -347,7 +341,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </button>
 
-            <button type="button" class="menu-card" onclick="openTour('restaurant')">
+            <button type="button" class="menu-card" onclick="window.openTour('restaurant')">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-utensils"></i></div>
                     <div class="card-text">
@@ -358,7 +352,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </button>
 
-            <button type="button" class="menu-card" onclick="openTour('gym')">
+            <button type="button" class="menu-card" onclick="window.openTour('gym')">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-dumbbell"></i></div>
                     <div class="card-text">
@@ -369,7 +363,7 @@
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
             </button>
 
-            <button type="button" class="menu-card" onclick="openTour('lobby')">
+            <button type="button" class="menu-card" onclick="window.openTour('lobby')">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-hotel"></i></div>
                     <div class="card-text">
@@ -384,30 +378,30 @@
 
     <!-- Overlay Viewer -->
     <div id="tour-overlay">
-        <button type="button" class="btn-back" onclick="closeTour()">
+        <button type="button" class="btn-back" onclick="window.closeTour()">
             <i class="fa-solid fa-arrow-right" id="back-icon"></i> <span id="txt-back">العودة للقائمة</span>
         </button>
 
         <div id="panorama-view"></div>
 
         <div class="scene-nav">
-            <button type="button" class="scene-btn" id="nav-btn-suite" onclick="switchScene('suite')">
+            <button type="button" class="scene-btn" id="nav-btn-suite" onclick="window.switchScene('suite')">
                 <i class="fa-solid fa-bed"></i> <span id="nav-suite">الغرف والأجنحة</span>
             </button>
 
-            <button type="button" class="scene-btn" id="nav-btn-halls" onclick="switchScene('halls')">
+            <button type="button" class="scene-btn" id="nav-btn-halls" onclick="window.switchScene('halls')">
                 <i class="fa-solid fa-handshake"></i> <span id="nav-halls">قاعات الفعاليات</span>
             </button>
 
-            <button type="button" class="scene-btn" id="nav-btn-restaurant" onclick="switchScene('restaurant')">
+            <button type="button" class="scene-btn" id="nav-btn-restaurant" onclick="window.switchScene('restaurant')">
                 <i class="fa-solid fa-utensils"></i> <span id="nav-restaurant">المطاعم</span>
             </button>
 
-            <button type="button" class="scene-btn" id="nav-btn-gym" onclick="switchScene('gym')">
+            <button type="button" class="scene-btn" id="nav-btn-gym" onclick="window.switchScene('gym')">
                 <i class="fa-solid fa-dumbbell"></i> <span id="nav-gym">المركز الرياضي</span>
             </button>
 
-            <button type="button" class="scene-btn" id="nav-btn-lobby" onclick="switchScene('lobby')">
+            <button type="button" class="scene-btn" id="nav-btn-lobby" onclick="window.switchScene('lobby')">
                 <i class="fa-solid fa-hotel"></i> <span id="nav-lobby">المدخل واللوبي</span>
             </button>
         </div>
@@ -485,75 +479,87 @@
             'lobby': 'FB_IMG_1789953128146.jpg'
         };
 
-        function toggleLanguage() {
+        // دالة آمنة لتغيير نصوص العناصر بدون التسبب في أي خطأ
+        function safeSetText(elementId, textValue) {
+            var el = document.getElementById(elementId);
+            if (el) {
+                el.innerText = textValue;
+            }
+        }
+
+        window.toggleLanguage = function() {
             currentLang = (currentLang === 'ar') ? 'en' : 'ar';
             applyLanguage();
-        }
+        };
 
         function applyLanguage() {
-            var data = i18n[currentLang];
-            var htmlTag = document.documentElement;
+            try {
+                var data = i18n[currentLang];
+                if (!data) return;
 
-            htmlTag.setAttribute('lang', currentLang);
-            htmlTag.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+                var htmlTag = document.documentElement;
+                htmlTag.setAttribute('lang', currentLang);
+                htmlTag.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
 
-            document.getElementById('lang-btn-text').innerText = data.langBtnText;
-            document.getElementById('txt-title').innerText = data.title;
-            document.getElementById('txt-subtitle').innerText = data.subtitle;
+                safeSetText('lang-btn-text', data.langBtnText);
+                safeSetText('txt-title', data.title);
+                safeSetText('txt-subtitle', data.subtitle);
 
-            document.getElementById('txt-suite-title').innerText = data.suiteTitle;
-            document.getElementById('txt-suite-desc').innerText = data.suiteDesc;
+                safeSetText('txt-suite-title', data.suiteTitle);
+                safeSetText('txt-suite-desc', data.suiteDesc);
 
-            document.getElementById('txt-halls-title').innerText = data.hallsTitle;
-            document.getElementById('txt-halls-desc').innerText = data.hallsDesc;
+                safeSetText('txt-halls-title', data.hallsTitle);
+                safeSetText('txt-halls-desc', data.hallsDesc);
 
-            document.getElementById('txt-rest-title').innerText = data.restTitle;
-            document.getElementById('txt-rest-desc').innerText = data.restDesc;
+                safeSetText('txt-rest-title', data.restTitle);
+                safeSetText('txt-rest-desc', data.restDesc);
 
-            document.getElementById('txt-gym-title').innerText = data.gymTitle;
-            document.getElementById('txt-gym-desc').innerText = data.gymDesc;
+                safeSetText('txt-gym-title', data.gymTitle);
+                safeSetText('txt-gym-desc', data.gymDesc);
 
-            document.getElementById('txt-lobby-title').innerText = data.lobbyTitle;
-            document.getElementById('txt-lobby-desc').innerText = data.lobbyDesc;
+                safeSetText('txt-lobby-title', data.lobbyTitle);
+                safeSetText('txt-lobby-desc', data.lobbyDesc);
 
-            document.getElementById('txt-back').innerText = data.backBtn;
-            document.getElementById('back-icon').className = currentLang === 'ar' ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+                safeSetText('txt-back', data.backBtn);
 
-            document.getElementById('nav-suite').innerText = data.navSuite;
-            document.getElementById('nav-halls').innerText = data.navHalls;
-            document.getElementById('nav-restaurant').innerText = data.navRest;
-            document.getElementById('nav-gym').innerText = data.navGym;
-            document.getElementById('nav-lobby').innerText = data.navLobby;
-        }
+                var backIcon = document.getElementById('back-icon');
+                if (backIcon) {
+                    backIcon.className = (currentLang === 'ar') ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+                }
 
-        function openTour(sceneKey) {
-            document.getElementById('tour-overlay').style.display = 'block';
-            switchScene(sceneKey);
-        }
-
-        function switchScene(sceneKey) {
-            activeSceneKey = sceneKey;
-            var sceneTitle = i18n[currentLang].scenes[sceneKey] || '';
-            var sceneImage = sceneImages[sceneKey] || sceneImages['lobby'];
-
-            var navBtns = document.querySelectorAll('.scene-btn');
-            navBtns.forEach(function(btn) { btn.classList.remove('active'); });
-            
-            var targetBtn = document.getElementById('nav-btn-' + sceneKey);
-            if (targetBtn) targetBtn.classList.add('active');
-
-            if (viewer) {
-                try { viewer.destroy(); } catch (e) {}
-                viewer = null;
+                safeSetText('nav-suite', data.navSuite);
+                safeSetText('nav-halls', data.navHalls);
+                safeSetText('nav-restaurant', data.navRest);
+                safeSetText('nav-gym', data.navGym);
+                safeSetText('nav-lobby', data.navLobby);
+            } catch (err) {
+                console.error("Language application error:", err);
             }
+        }
 
-            var container = document.getElementById('panorama-view');
-            container.innerHTML = '';
+        window.openTour = function(sceneKey) {
+            try {
+                var overlay = document.getElementById('tour-overlay');
+                if (overlay) {
+                    overlay.style.display = 'block';
+                }
+                window.switchScene(sceneKey);
+            } catch (err) {
+                console.error("openTour error:", err);
+            }
+        };
 
-            // محاولة العرض عبر Pannellum مع العرض الاحتياطي المباشر عند تعذر التشغيل
-            if (typeof pannellum !== 'undefined') {
-                try {
-                    viewer = pannellum.viewer('panorama-view', {
-                        "type": "equirectangular",
-                        "panorama": sceneImage,
-                 
+        window.switchScene = function(sceneKey) {
+            try {
+                activeSceneKey = sceneKey;
+                var sceneTitle = (i18n[currentLang] && i18n[currentLang].scenes && i18n[currentLang].scenes[sceneKey]) ? i18n[currentLang].scenes[sceneKey] : '';
+                var sceneImage = sceneImages[sceneKey] || sceneImages['lobby'];
+
+                var navBtns = document.querySelectorAll('.scene-btn');
+                navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+                
+                var targetBtn = document.getElementById('nav-btn-' + sceneKey);
+                if (targetBtn) targetBtn.classList.add('active');
+
+                if (viewer) {
+                    t                
