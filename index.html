@@ -58,7 +58,7 @@
             background-color: #ffffff;
             border: 1px solid var(--border-color);
             color: var(--primary-dark);
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 700;
@@ -69,9 +69,10 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all 0.2s ease;
             user-select: none;
+            outline: none;
         }
 
-        .lang-btn:hover, .lang-btn:active {
+        .lang-btn:active {
             border-color: var(--primary-gold);
             color: var(--primary-gold);
         }
@@ -85,6 +86,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
         /* Logo & Header Section */
@@ -147,7 +150,9 @@
             gap: 14px;
         }
 
-        .menu-card {
+        /* Changed from DIV to Button element */
+        button.menu-card {
+            width: 100%;
             background-color: var(--card-bg);
             border-radius: 16px;
             padding: 16px 20px;
@@ -160,12 +165,14 @@
             transition: all 0.2s ease;
             text-decoration: none;
             color: inherit;
-            user-select: none;
+            text-align: inherit;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
-        .menu-card:hover, .menu-card:active {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.15);
+        button.menu-card:active {
+            transform: scale(0.98);
             border-color: var(--primary-gold);
         }
 
@@ -209,20 +216,11 @@
         .card-arrow {
             color: #94a3b8;
             font-size: 0.9rem;
-            transition: transform 0.2s ease;
             pointer-events: none;
         }
 
         html[dir="ltr"] .card-arrow {
             transform: rotate(180deg);
-        }
-
-        html[dir="ltr"] .menu-card:hover .card-arrow {
-            transform: rotate(180deg) translateX(-4px);
-        }
-
-        html[dir="rtl"] .menu-card:hover .card-arrow {
-            transform: translateX(-4px);
         }
 
         /* 360 Panorama View Overlay */
@@ -233,27 +231,32 @@
             width: 100vw;
             height: 100vh;
             background-color: #000000;
-            z-index: 2000;
+            z-index: 9999;
             display: none;
+            pointer-events: none; /* يمنع حجب الشاشة طالما غير مفعّل */
         }
 
         #tour-overlay.active {
             display: block;
+            pointer-events: auto; /* يفعل التفاعل فقط عند فتح الشاشة */
         }
 
         #panorama-view {
             width: 100%;
             height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10000;
         }
 
         .btn-back {
             position: absolute;
             top: 20px;
-            z-index: 2100;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(8px);
+            z-index: 10001;
+            background: rgba(15, 23, 42, 0.9);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 10px 22px;
             border-radius: 30px;
             font-weight: 700;
@@ -262,23 +265,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
-            user-select: none;
+            outline: none;
         }
 
-        html[dir="ltr"] .btn-back {
-            left: 20px;
-        }
-
-        html[dir="rtl"] .btn-back {
-            right: 20px;
-        }
-
-        .btn-back:hover, .btn-back:active {
-            background: var(--primary-gold);
-            border-color: var(--primary-gold);
-        }
+        html[dir="ltr"] .btn-back { left: 20px; }
+        html[dir="rtl"] .btn-back { right: 20px; }
 
         /* Bottom Scene Nav Bar */
         .scene-nav {
@@ -286,71 +277,37 @@
             bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2100;
+            z-index: 10001;
             display: flex;
             gap: 10px;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.9);
             padding: 10px 16px;
             border-radius: 40px;
             border: 1px solid rgba(197, 160, 89, 0.4);
             max-width: 94vw;
             overflow-x: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             white-space: nowrap;
-        }
-
-        .scene-nav::-webkit-scrollbar {
-            display: none;
         }
 
         .scene-btn {
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #e2e8f0;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            user-select: none;
+            outline: none;
         }
 
-        .scene-btn:hover, .scene-btn.active {
+        .scene-btn.active {
             background: var(--primary-gold);
             color: #ffffff;
             border-color: var(--primary-gold);
-            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
-        }
-
-        @media (max-width: 480px) {
-            .app-container {
-                padding: 15px 15px 25px 15px;
-            }
-            .hotel-title {
-                font-size: 1.5rem;
-            }
-            .menu-card {
-                padding: 14px 16px;
-            }
-            .card-icon {
-                width: 42px;
-                height: 42px;
-                font-size: 1.1rem;
-            }
-            .logo-wrapper {
-                width: 110px;
-                height: 110px;
-            }
-            .scene-btn {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
         }
     </style>
 </head>
@@ -358,14 +315,14 @@
 
     <!-- Language Switcher Bar -->
     <div class="top-bar">
-        <button class="lang-btn" onclick="toggleLanguage()">
+        <button type="button" class="lang-btn" id="btn-toggle-lang">
             <i class="fa-solid fa-globe"></i>
             <span id="lang-btn-text">العربية</span>
         </button>
     </div>
 
     <!-- Main Interface Container -->
-    <div class="app-container" id="main-menu">
+    <div class="app-container">
         <!-- Header -->
         <div class="header-section">
             <div class="logo-wrapper">
@@ -382,80 +339,70 @@
             <p class="hotel-subtitle" id="txt-subtitle">Select a department to start the interactive 360° tour</p>
         </div>
 
-        <!-- Category Menu List -->
+        <!-- Category Menu List (All converted to <button>) -->
         <div class="menu-list">
             
-            <div class="menu-card" onclick="openTour('suite')">
+            <button type="button" class="menu-card" data-scene="suite">
                 <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-bed"></i>
-                    </div>
+                    <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
                     <div class="card-text">
                         <h3 id="txt-suite-title">Luxury Rooms & Suites</h3>
                         <p id="txt-suite-desc">Explore the Ambassador Suite & Royal Rooms</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </div>
+            </button>
 
-            <div class="menu-card" onclick="openTour('halls')">
+            <button type="button" class="menu-card" data-scene="halls">
                 <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-handshake"></i>
-                    </div>
+                    <div class="card-icon"><i class="fa-solid fa-handshake"></i></div>
                     <div class="card-text">
                         <h3 id="txt-halls-title">Meeting & Event Halls</h3>
                         <p id="txt-halls-desc">Conference halls equipped with latest technology</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </div>
+            </button>
 
-            <div class="menu-card" onclick="openTour('restaurant')">
+            <button type="button" class="menu-card" data-scene="restaurant">
                 <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-utensils"></i>
-                    </div>
+                    <div class="card-icon"><i class="fa-solid fa-utensils"></i></div>
                     <div class="card-text">
                         <h3 id="txt-rest-title">Restaurants & Dining (AZZURRO)</h3>
                         <p id="txt-rest-desc">Discover Azzurro Restaurant & fine dining</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </div>
+            </button>
 
-            <div class="menu-card" onclick="openTour('gym')">
+            <button type="button" class="menu-card" data-scene="gym">
                 <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-dumbbell"></i>
-                    </div>
+                    <div class="card-icon"><i class="fa-solid fa-dumbbell"></i></div>
                     <div class="card-text">
                         <h3 id="txt-gym-title">Fitness Center & Spa</h3>
                         <p id="txt-gym-desc">Modern fitness equipment with spa facilities</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </div>
+            </button>
 
-            <div class="menu-card" onclick="openTour('lobby')">
+            <button type="button" class="menu-card" data-scene="lobby">
                 <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fa-solid fa-hotel"></i>
-                    </div>
+                    <div class="card-icon"><i class="fa-solid fa-hotel"></i></div>
                     <div class="card-text">
                         <h3 id="txt-lobby-title">Main Entrance & Lobby</h3>
                         <p id="txt-lobby-desc">Exterior view & royal reception area</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </div>
+            </button>
 
         </div>
     </div>
 
-    <!-- 360 Panorama View Section -->
+    <!-- 360 Panorama View Overlay -->
     <div id="tour-overlay">
-        <button class="btn-back" onclick="closeTour()">
+        <button type="button" class="btn-back" id="btn-close-tour">
             <i class="fa-solid fa-arrow-left" id="back-icon"></i> <span id="txt-back">Back to Menu</span>
         </button>
 
@@ -463,30 +410,30 @@
 
         <!-- Quick Scene Navigation Bar -->
         <div class="scene-nav">
-            <button class="scene-btn" data-scene="suite" onclick="switchScene('suite')">
+            <button type="button" class="scene-btn" data-scene="suite">
                 <i class="fa-solid fa-bed"></i> <span id="nav-suite">Rooms & Suites</span>
             </button>
-            <button class="scene-btn" data-scene="halls" onclick="switchScene('halls')">
+            <button type="button" class="scene-btn" data-scene="halls">
                 <i class="fa-solid fa-handshake"></i> <span id="nav-halls">Event Halls</span>
             </button>
-            <button class="scene-btn" data-scene="restaurant" onclick="switchScene('restaurant')">
+            <button type="button" class="scene-btn" data-scene="restaurant">
                 <i class="fa-solid fa-utensils"></i> <span id="nav-restaurant">Restaurants</span>
             </button>
-            <button class="scene-btn" data-scene="gym" onclick="switchScene('gym')">
+            <button type="button" class="scene-btn" data-scene="gym">
                 <i class="fa-solid fa-dumbbell"></i> <span id="nav-gym">Fitness Center</span>
             </button>
-            <button class="scene-btn" data-scene="lobby" onclick="switchScene('lobby')">
+            <button type="button" class="scene-btn" data-scene="lobby">
                 <i class="fa-solid fa-hotel"></i> <span id="nav-lobby">Lobby</span>
             </button>
         </div>
     </div>
 
     <script>
-        let viewer = null;
-        let currentLang = 'en';
-        let activeSceneKey = 'lobby';
+        var viewer = null;
+        var currentLang = 'en';
+        var activeSceneKey = 'lobby';
 
-        const i18n = {
+        var i18n = {
             en: {
                 langBtnText: "العربية",
                 title: "World Heart Hotel",
@@ -502,13 +449,11 @@
                 gymDesc: "Modern fitness equipment with spa facilities",
                 lobbyTitle: "Main Entrance & Lobby",
                 lobbyDesc: "Exterior view & royal reception area",
-                
                 navSuite: "Rooms & Suites",
                 navHalls: "Event Halls",
                 navRest: "Restaurants",
                 navGym: "Fitness Center",
                 navLobby: "Lobby",
-
                 scenes: {
                     suite: "Luxury Rooms & Suites",
                     halls: "Meeting & Event Halls",
@@ -532,13 +477,11 @@
                 gymDesc: "أجهزة لياقة بدنية وحديثة مع السبا",
                 lobbyTitle: "المدخل الرئيسي واللوبي",
                 lobbyDesc: "الواجهة الخارجية والاستقبال الملكي",
-
                 navSuite: "الغرف والأجنحة",
                 navHalls: "قاعات الفعاليات",
                 navRest: "المطاعم",
                 navGym: "المركز الرياضي",
                 navLobby: "المدخل واللوبي",
-
                 scenes: {
                     suite: "الغرف والأجنحة الفاخرة",
                     halls: "قاعات الاجتماعات والفعاليات",
@@ -549,7 +492,7 @@
             }
         };
 
-        const sceneImages = {
+        var sceneImages = {
             'suite': 'FB_IMG_1789953128146.jpg',
             'halls': 'FB_IMG_1789953128146.jpg',
             'restaurant': 'FB_IMG_1789953128146.jpg',
@@ -563,8 +506,8 @@
         }
 
         function applyLanguage() {
-            const data = i18n[currentLang];
-            const htmlTag = document.documentElement;
+            var data = i18n[currentLang];
+            var htmlTag = document.documentElement;
 
             htmlTag.setAttribute('lang', currentLang);
             htmlTag.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
@@ -585,4 +528,35 @@
             document.getElementById('txt-gym-title').innerText = data.gymTitle;
             document.getElementById('txt-gym-desc').innerText = data.gymDesc;
 
-            document.getElementById('txt-lobby-title').innerText = data
+            document.getElementById('txt-lobby-title').innerText = data.lobbyTitle;
+            document.getElementById('txt-lobby-desc').innerText = data.lobbyDesc;
+
+            document.getElementById('txt-back').innerText = data.backBtn;
+            document.getElementById('back-icon').className = currentLang === 'ar' ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+
+            document.getElementById('nav-suite').innerText = data.navSuite;
+            document.getElementById('nav-halls').innerText = data.navHalls;
+            document.getElementById('nav-restaurant').innerText = data.navRest;
+            document.getElementById('nav-gym').innerText = data.navGym;
+            document.getElementById('nav-lobby').innerText = data.navLobby;
+
+            if (viewer && document.getElementById('tour-overlay').classList.contains('active')) {
+                switchScene(activeSceneKey);
+            }
+        }
+
+        function openTour(sceneKey) {
+            var overlay = document.getElementById('tour-overlay');
+            overlay.classList.add('active');
+
+            setTimeout(function() {
+                switchScene(sceneKey);
+            }, 100);
+        }
+
+        function switchScene(sceneKey) {
+            activeSceneKey = sceneKey;
+            var sceneTitle = (i18n[currentLang] && i18n[currentLang].scenes[sceneKey]) ? i18n[currentLang].scenes[sceneKey] : '';
+            var sceneImage = sceneImages[sceneKey] || sceneImages['lobby'];
+
+            
