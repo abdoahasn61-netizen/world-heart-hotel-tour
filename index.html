@@ -33,6 +33,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
@@ -66,10 +67,11 @@
             align-items: center;
             gap: 6px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
+            user-select: none;
         }
 
-        .lang-btn:hover {
+        .lang-btn:hover, .lang-btn:active {
             border-color: var(--primary-gold);
             color: var(--primary-gold);
         }
@@ -155,13 +157,14 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
             border: 1px solid var(--border-color);
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             color: inherit;
+            user-select: none;
         }
 
-        .menu-card:hover {
-            transform: translateY(-3px);
+        .menu-card:hover, .menu-card:active {
+            transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(197, 160, 89, 0.15);
             border-color: var(--primary-gold);
         }
@@ -170,6 +173,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            pointer-events: none;
         }
 
         .card-icon {
@@ -205,7 +209,8 @@
         .card-arrow {
             color: #94a3b8;
             font-size: 0.9rem;
-            transition: transform 0.25s ease;
+            transition: transform 0.2s ease;
+            pointer-events: none;
         }
 
         html[dir="ltr"] .card-arrow {
@@ -225,9 +230,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
             z-index: 2000;
             display: none;
         }
@@ -258,7 +263,8 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            user-select: none;
         }
 
         html[dir="ltr"] .btn-back {
@@ -269,7 +275,7 @@
             right: 20px;
         }
 
-        .btn-back:hover {
+        .btn-back:hover, .btn-back:active {
             background: var(--primary-gold);
             border-color: var(--primary-gold);
         }
@@ -308,10 +314,11 @@
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            user-select: none;
         }
 
         .scene-btn:hover, .scene-btn.active {
@@ -476,7 +483,7 @@
 
     <script>
         let viewer = null;
-        let currentLang = 'en'; // Default language set to English
+        let currentLang = 'en';
         let activeSceneKey = 'lobby';
 
         const i18n = {
@@ -562,12 +569,10 @@
             htmlTag.setAttribute('lang', currentLang);
             htmlTag.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
 
-            // Header & Language Button
             document.getElementById('lang-btn-text').innerText = data.langBtnText;
             document.getElementById('txt-title').innerText = data.title;
             document.getElementById('txt-subtitle').innerText = data.subtitle;
 
-            // Main Menu Cards
             document.getElementById('txt-suite-title').innerText = data.suiteTitle;
             document.getElementById('txt-suite-desc').innerText = data.suiteDesc;
 
@@ -580,9 +585,4 @@
             document.getElementById('txt-gym-title').innerText = data.gymTitle;
             document.getElementById('txt-gym-desc').innerText = data.gymDesc;
 
-            document.getElementById('txt-lobby-title').innerText = data.lobbyTitle;
-            document.getElementById('txt-lobby-desc').innerText = data.lobbyDesc;
-
-            // Overlay UI
-            document.getElementById('txt-back').innerText = data.backBtn;
- 
+            document.getElementById('txt-lobby-title').innerText = data
