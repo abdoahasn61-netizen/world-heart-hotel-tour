@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>World Heart Hotel - Virtual Tour</title>
     
     <!-- Google Fonts -->
@@ -39,6 +39,7 @@
         body, html {
             width: 100%;
             min-height: 100vh;
+            min-height: 100dvh;
             background-color: var(--bg-light);
             color: var(--text-main);
             overflow-x: hidden;
@@ -194,16 +195,18 @@
             transform: rotate(180deg);
         }
 
-        /* Modal Overlay */
+        /* Modal Overlay - Dynamic Viewport Height Fix */
         #tour-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             background-color: #000000;
             z-index: 999999;
             display: none;
+            overflow: hidden;
         }
 
         #panorama-view {
@@ -220,53 +223,63 @@
 
         .btn-back {
             position: absolute;
-            top: 20px;
+            top: calc(15px + env(safe-area-inset-top, 0px));
             z-index: 100;
             background: rgba(15, 23, 42, 0.9);
             color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 22px;
+            padding: 8px 18px;
             border-radius: 30px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        html[dir="ltr"] .btn-back { left: 20px; }
-        html[dir="rtl"] .btn-back { right: 20px; }
+        html[dir="ltr"] .btn-back { left: 15px; }
+        html[dir="rtl"] .btn-back { right: 15px; }
 
+        /* Scene Nav Fixes for Mobile Viewports */
         .scene-nav {
             position: absolute;
-            bottom: 25px;
+            bottom: max(20px, calc(15px + env(safe-area-inset-bottom, 0px)));
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 10px 16px;
-            border-radius: 40px;
-            border: 1px solid rgba(197, 160, 89, 0.4);
-            max-width: 94vw;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(8px);
+            padding: 8px 12px;
+            border-radius: 35px;
+            border: 1px solid rgba(197, 160, 89, 0.5);
+            max-width: 92vw;
             overflow-x: auto;
             white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .scene-nav::-webkit-scrollbar {
+            display: none;
         }
 
         .scene-btn {
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #e2e8f0;
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .scene-btn.active {
@@ -455,7 +468,6 @@
         }
 
         function openTour(sceneKey) {
-            // إظهار الشاشة فوراً دون انتظار أي مكتبة
             document.getElementById('tour-overlay').style.display = 'block';
             switchScene(sceneKey);
         }
@@ -465,7 +477,10 @@
             navBtns.forEach(function(b) { b.classList.remove('active'); });
             
             var targetBtn = document.getElementById('nav-btn-' + sceneKey);
-            if (targetBtn) targetBtn.classList.add('active');
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+                targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
 
             var imgPath = sceneImages[sceneKey] || sceneImages['lobby'];
             var container = document.getElementById('panorama-view');
@@ -476,7 +491,6 @@
                 viewer = null;
             }
 
-            // تجربة تشغيل 360، أو العرض المباشر للفيسبوك هاندلير
             var isPannellumLoaded = (typeof pannellum !== 'undefined' && pannellum.viewer);
             
             if (isPannellumLoaded) {
@@ -512,4 +526,3 @@
     </script>
 </body>
 </html>
-
