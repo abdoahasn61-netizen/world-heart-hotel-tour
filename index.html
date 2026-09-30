@@ -195,7 +195,7 @@
             transform: rotate(180deg);
         }
 
-        /* Modal Overlay - Dynamic Viewport Height Fix */
+        /* Modal Overlay */
         #tour-overlay {
             position: fixed;
             top: 0;
@@ -242,7 +242,6 @@
         html[dir="ltr"] .btn-back { left: 15px; }
         html[dir="rtl"] .btn-back { right: 15px; }
 
-        /* Scene Nav Fixes for Mobile Viewports */
         .scene-nav {
             position: absolute;
             bottom: max(20px, calc(15px + env(safe-area-inset-bottom, 0px)));
@@ -301,7 +300,7 @@
     <div class="app-container">
         <div class="header-section">
             <div class="logo-wrapper">
-                <img src="logo.png" alt="World Heart Hotel" onerror="this.onerror=null; this.src='FB_IMG_1789953128146.jpg';">
+                <img src="logo.png" alt="World Heart Hotel" onerror="this.onerror=null; this.src='fff.png';">
             </div>
             <div class="stars">
                 <i class="fa-solid fa-star"></i>
@@ -424,12 +423,13 @@
             }
         };
 
+        // مسارات الصور المحدثة
         var sceneImages = {
-            'suite': 'FB_IMG_1789953128146.jpg',
-            'halls': 'FB_IMG_1789953128146.jpg',
-            'restaurant': 'FB_IMG_1789953128146.jpg',
-            'gym': 'FB_IMG_1789953128146.jpg',
-            'lobby': 'FB_IMG_1789953128146.jpg'
+            'suite': 'fff.png',
+            'halls': 'fff.png',
+            'restaurant': 'fff.png',
+            'gym': 'fff.png',
+            'lobby': 'fff.png'
         };
 
         function setSafeText(id, val) {
