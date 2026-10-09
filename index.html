@@ -245,38 +245,90 @@
             outline: 3px solid var(--primary-gold);
             outline-offset: 3px;
         }
-        #viewer-status[hidden] { display: none; }
+        /* Pannellum retains its controls and 360° engine; only its duplicate loading box is hidden. */
+        #panorama-view .pnlm-load-box,
+        #panorama-view .pnlm-load-button { display: none !important; }
+
+        /* A single refined loading layer, displayed only when loading takes noticeable time. */
         #viewer-status {
             position: absolute;
             inset: 0;
-            z-index: 25;
+            z-index: 40;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 24px;
+            opacity: 0;
+            visibility: hidden;
             pointer-events: none;
+            background: rgba(8, 13, 25, 0.25);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            transition: opacity .32s ease, visibility .32s ease;
         }
+        #viewer-status.is-visible { opacity: 1; visibility: visible; }
+        #viewer-status.is-error { pointer-events: auto; }
         .status-card {
-            max-width: 340px;
-            padding: 20px;
-            color: #fff;
+            width: min(300px, 90vw);
+            padding: 26px 22px;
             text-align: center;
-            background: rgba(15,23,42,0.93);
-            border: 1px solid var(--primary-gold);
-            border-radius: 16px;
-            pointer-events: auto;
+            color: #fff;
+            border: 1px solid rgba(197,160,89,.65);
+            border-radius: 24px;
+            background: rgba(15,23,42,.87);
+            box-shadow: 0 15px 55px rgba(0,0,0,.3);
         }
-        .status-card p { line-height: 1.8; }
+        .golden-loader {
+            width: 66px;
+            height: 66px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background: rgba(197,160,89,.09);
+            color: #e2c586;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        .golden-loader::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            border: 3px solid rgba(197,160,89,.2);
+            border-top-color: #efd28b;
+            border-right-color: #c5a059;
+            animation: golden-spin .9s linear infinite;
+        }
+        @keyframes golden-spin { to { transform: rotate(360deg); } }
+        #viewer-status.is-error .golden-loader::before {
+            animation: none;
+            border-color: rgba(197,160,89,.6);
+        }
+        #status-text { line-height: 1.8; font-size: .95rem; font-weight: 700; }
+        #status-room {
+            margin-top: 5px;
+            color: #e2c586;
+            font-size: .79rem;
+            direction: ltr;
+        }
         .retry-btn {
-            margin-top: 12px;
-            padding: 8px 18px;
+            margin-top: 17px;
+            padding: 9px 22px;
             background: var(--primary-gold);
+            color: #111827;
             border: 0;
-            border-radius: 20px;
-            font-weight: 700;
+            border-radius: 24px;
+            font-weight: 800;
             cursor: pointer;
         }
         .retry-btn[hidden] { display: none; }
+        .retry-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) {
+            .golden-loader::before { animation: none; }
+            #viewer-status { transition-duration: 0s; }
+        }
     </style>
 </head>
 <body>
@@ -324,9 +376,11 @@
             <span id="txt-back">العودة للقائمة</span>
         </button>
         <div id="panorama-view"></div>
-        <div id="viewer-status" role="status" aria-live="polite" hidden>
+        <div id="viewer-status" role="status" aria-live="polite" aria-hidden="true">
             <div class="status-card">
-                <p id="status-text"></p>
+                <div class="golden-loader" aria-hidden="true"><span id="status-symbol">360°</span></div>
+                <p id="status-text">جارٍ تجهيز المشهد...</p>
+                <p id="status-room"></p>
                 <button type="button" class="retry-btn" id="retry-btn" onclick="retryRoom()" hidden>إعادة المحاولة</button>
             </div>
         </div>
@@ -335,14 +389,17 @@
     </div>
 
     <script>
+        'use strict';
+
         var viewer = null;
         var currentLang = 'ar';
         var currentRoomIndex = 0;
-        var loadSerial = 0;
         var previousOverflow = '';
+        var loadingTimer = null;
+        var preloadedRoom = { index: -1, image: null };
 
-        // الاسم الإنجليزي هو النص المعروض؛ اسم ملف PNG هو مسار الصورة على GitHub.
-        // يجب رفع الملفات العشرة إلى نفس مجلد index.html بالاسم نفسه تماماً.
+        // The room name is displayed in the navigation; the PNG filename is the actual image path.
+        // Keep all ten PNG files next to index.html, with precisely matching uppercase letters.
         var rooms = [
             { name: 'premium city view', image: '805A.png' },
             { name: 'premium river view', image: '807A.png' },
@@ -358,25 +415,22 @@
 
         var i18n = {
             ar: {
-                langBtn: 'English',
-                title: 'فندق قلب العالم',
+                langBtn: 'English', title: 'فندق قلب العالم',
                 subtitle: 'استكشف غرف الفندق بجولة تفاعلية 360°',
                 roomsTitle: 'الغرف',
                 roomsDesc: 'اضغط لاستعراض الغرف العشر بتقنية 360°',
                 back: 'العودة للقائمة',
-                loading: 'جارٍ تحميل الغرفة...',
-                error: 'تعذر تحميل صورة هذه الغرفة. تأكد من اسم الملف ورفعه إلى GitHub.',
+                loading: 'جارٍ تجهيز المشهد...',
+                error: 'تعذر تحميل صورة الغرفة. تحقق من اتصالك ومن اسم ملف الصورة على GitHub.',
                 retry: 'إعادة المحاولة'
             },
             en: {
-                langBtn: 'العربية',
-                title: 'World Heart Hotel',
+                langBtn: 'العربية', title: 'World Heart Hotel',
                 subtitle: 'Explore our hotel rooms in an interactive 360° tour',
-                roomsTitle: 'Rooms',
-                roomsDesc: 'Explore all 10 rooms in 360°',
+                roomsTitle: 'Rooms', roomsDesc: 'Explore all 10 rooms in 360°',
                 back: 'Back to Menu',
-                loading: 'Loading room panorama...',
-                error: 'Unable to load this room image. Check its filename and upload it to GitHub.',
+                loading: 'Preparing your 360° view...',
+                error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
                 retry: 'Try Again'
             }
         };
@@ -399,11 +453,29 @@
             setText('retry-btn', t.retry);
             document.getElementById('back-icon').className = currentLang === 'ar'
                 ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+
             var status = document.getElementById('viewer-status');
-            if (!status.hidden) {
-                setStatus(document.getElementById('retry-btn').hidden ? t.loading : t.error,
-                          !document.getElementById('retry-btn').hidden);
+            if (status.classList.contains('is-visible')) {
+                setText('status-text', i18n[currentLang][
+                    status.classList.contains('is-error') ? 'error' : 'loading'
+                ]);
             }
+        }
+
+        function roomId(index) { return 'room-' + index; }
+
+        function buildScenes() {
+            var scenes = {};
+            rooms.forEach(function(room, index) {
+                scenes[roomId(index)] = {
+                    type: 'equirectangular',
+                    panorama: room.image,
+                    pitch: 0,
+                    yaw: 0,
+                    hfov: 100
+                };
+            });
+            return scenes;
         }
 
         function makeRoomButtons() {
@@ -413,7 +485,11 @@
                 button.type = 'button';
                 button.className = 'scene-btn';
                 button.setAttribute('aria-label', room.name);
-                button.innerHTML = '<i class="fa-solid fa-bed" aria-hidden="true"></i>';
+                button.setAttribute('aria-pressed', 'false');
+                var icon = document.createElement('i');
+                icon.className = 'fa-solid fa-bed';
+                icon.setAttribute('aria-hidden', 'true');
+                button.appendChild(icon);
                 var label = document.createElement('span');
                 label.textContent = room.name;
                 button.appendChild(label);
@@ -422,91 +498,44 @@
             });
         }
 
-        function setStatus(message, isError) {
-            var box = document.getElementById('viewer-status');
-            box.hidden = !message;
-            setText('status-text', message || '');
-            document.getElementById('retry-btn').hidden = !isError;
-        }
-
-        function openTour(roomIndex) {
-            var overlay = document.getElementById('tour-overlay');
-            if (overlay.style.display !== 'block') {
-                previousOverflow = document.body.style.overflow;
-                document.body.style.overflow = 'hidden';
-            }
-            overlay.style.display = 'block';
-            overlay.setAttribute('aria-hidden', 'false');
-            switchRoom(roomIndex);
-        }
-
-        function switchRoom(roomIndex) {
-            if (!Number.isInteger(roomIndex) || roomIndex < 0 || roomIndex >= rooms.length) return;
-            currentRoomIndex = roomIndex;
-            var serial = ++loadSerial;
+        function updateNavigation(index) {
             var buttons = document.querySelectorAll('.scene-btn');
-            buttons.forEach(function(button, index) {
-                var active = index === roomIndex;
-                button.classList.toggle('active', active);
-                button.setAttribute('aria-pressed', String(active));
+            buttons.forEach(function(button, i) {
+                var selected = i === index;
+                button.classList.toggle('active', selected);
+                button.setAttribute('aria-pressed', String(selected));
             });
-            buttons[roomIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-
-            // تدمير العارض السابق قبل تنظيف الحاوية.
-            if (viewer) {
-                try { viewer.destroy(); } catch (e) { console.warn(e); }
-                viewer = null;
-            }
-            document.getElementById('panorama-view').innerHTML = '';
-            setStatus(i18n[currentLang].loading, false);
-
-            if (typeof pannellum === 'undefined' || typeof pannellum.viewer !== 'function') {
-                setStatus(i18n[currentLang].error, true);
-                return;
-            }
-            try {
-                viewer = pannellum.viewer('panorama-view', {
-                    type: 'equirectangular',
-                    panorama: rooms[roomIndex].image,
-                    autoLoad: true,
-                    autoRotate: -2,
-                    compass: false,
-                    showZoomCtrl: true
-                });
-                viewer.on('load', function() {
-                    if (serial === loadSerial) setStatus('', false);
-                });
-                viewer.on('error', function() {
-                    if (serial === loadSerial) setStatus(i18n[currentLang].error, true);
-                });
-            } catch (e) {
-                console.error('Room panorama error:', e);
-                if (serial === loadSerial) setStatus(i18n[currentLang].error, true);
+            if (buttons[index]) {
+                buttons[index].scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
             }
         }
 
-        function retryRoom() { switchRoom(currentRoomIndex); }
-
-        function closeTour() {
-            loadSerial++;
-            var overlay = document.getElementById('tour-overlay');
-            overlay.style.display = 'none';
-            overlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = previousOverflow;
-            if (viewer) {
-                try { viewer.destroy(); } catch (e) { console.warn(e); }
-                viewer = null;
-            }
-            document.getElementById('panorama-view').innerHTML = '';
-            setStatus('', false);
+        function hideLoader() {
+            clearTimeout(loadingTimer);
+            loadingTimer = null;
+            var status = document.getElementById('viewer-status');
+            status.classList.remove('is-visible', 'is-error');
+            status.setAttribute('aria-hidden', 'true');
         }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('tour-overlay').style.display === 'block') {
-                closeTour();
-            }
-        });
-        makeRoomButtons();
-    </script>
-</body>
-</html>
+        function startLoader(index, immediately) {
+            hideLoader();
+            var status = document.getElementById('viewer-status');
+            setText('status-symbol', '360°');
+            setText('status-text', i18n[currentLang].loading);
+            setText('status-room', rooms[index].name);
+            document.getElementById('retry-btn').hidden = true;
+
+            // A short delay prevents the spinner flashing for a preloaded photo.
+            var delay = immediately ? 80 : (preloadedRoom.index === index ? 450 : 230);
+            loadingTimer = setTimeout(function() {
+                if (document.getElementById('tour-overlay').style.display !== 'block') return;
+                status.classList.add('is-visible');
+                status.setAttribute('aria-hidden', 'false');
+                loadingTimer = null;
+            }, delay);
+        }
+
+        function showLoadError() {
+            hideLoader();
+            var status = do
