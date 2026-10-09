@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>World Heart Hotel - Virtual Tour</title>
-    
-    <!-- Google Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Pannellum 360 Library -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
-    
-    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -27,7 +22,6 @@
             --text-sub: #64748b;
             --border-color: #e2e8f0;
         }
-
         * {
             margin: 0;
             padding: 0;
@@ -35,27 +29,24 @@
             font-family: 'Cairo', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-
-        body, html {
+        html, body {
             width: 100%;
             min-height: 100vh;
             min-height: 100dvh;
-            background-color: var(--bg-light);
+            background: var(--bg-light);
             color: var(--text-main);
             overflow-x: hidden;
         }
-
         .top-bar {
             width: 100%;
             max-width: 550px;
             display: flex;
             justify-content: flex-end;
-            padding: 15px 20px 0 20px;
+            padding: 15px 20px 0;
             margin: 0 auto;
         }
-
         .lang-btn {
-            background-color: #ffffff;
+            background: #fff;
             border: 1px solid var(--border-color);
             color: var(--primary-dark);
             padding: 8px 16px;
@@ -66,44 +57,39 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-
         .app-container {
             max-width: 550px;
             margin: 0 auto;
-            padding: 15px 20px 30px 20px;
+            padding: 15px 20px 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         .header-section {
             text-align: center;
             margin-bottom: 25px;
             width: 100%;
         }
-
         .logo-wrapper {
             width: 120px;
             height: 120px;
-            background-color: #ffffff;
+            background: #fff;
             border-radius: 50%;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             border: 3px solid var(--primary-gold);
             overflow: hidden;
         }
-
         .logo-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
         .stars {
             color: var(--primary-gold);
             font-size: 0.85rem;
@@ -112,58 +98,46 @@
             justify-content: center;
             gap: 4px;
         }
-
         .hotel-title {
             font-size: 1.8rem;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 6px;
         }
-
         .hotel-subtitle {
             font-size: 0.95rem;
             color: var(--text-sub);
             font-weight: 600;
         }
-
-        .menu-list {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
+        .menu-list { width: 100%; }
         .menu-card {
             width: 100%;
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             border: 1px solid var(--border-color);
             cursor: pointer;
             text-align: inherit;
             color: inherit;
         }
-
         .menu-card:active {
             transform: scale(0.98);
             border-color: var(--primary-gold);
         }
-
         .card-content {
             display: flex;
             align-items: center;
             gap: 16px;
             pointer-events: none;
         }
-
         .card-icon {
             width: 48px;
             height: 48px;
-            background-color: #faf5ed;
+            background: #faf5ed;
             color: var(--primary-gold);
             border-radius: 12px;
             display: flex;
@@ -172,62 +146,46 @@
             font-size: 1.25rem;
             flex-shrink: 0;
         }
-
         .card-text h3 {
             font-size: 1.05rem;
             font-weight: 700;
-            color: var(--text-main);
             margin-bottom: 2px;
         }
-
         .card-text p {
             font-size: 0.82rem;
             color: var(--text-sub);
         }
-
         .card-arrow {
             color: #94a3b8;
             font-size: 0.9rem;
             pointer-events: none;
         }
-
-        html[dir="ltr"] .card-arrow {
-            transform: rotate(180deg);
-        }
-
-        /* Modal Overlay */
+        html[dir="ltr"] .card-arrow { transform: rotate(180deg); }
         #tour-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100vw;
             height: 100vh;
             height: 100dvh;
-            background-color: #000000;
+            background: #000;
             z-index: 999999;
             display: none;
             overflow: hidden;
         }
-
         #panorama-view {
             width: 100%;
             height: 100%;
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
             z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
         .btn-back {
             position: absolute;
             top: calc(15px + env(safe-area-inset-top, 0px));
             z-index: 100;
-            background: rgba(15, 23, 42, 0.9);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(15,23,42,0.9);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
             padding: 8px 18px;
             border-radius: 30px;
             font-weight: 700;
@@ -238,10 +196,8 @@
             gap: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
         html[dir="ltr"] .btn-back { left: 15px; }
         html[dir="rtl"] .btn-back { right: 15px; }
-
         .scene-nav {
             position: absolute;
             bottom: max(20px, calc(15px + env(safe-area-inset-bottom, 0px)));
@@ -250,25 +206,22 @@
             z-index: 100;
             display: flex;
             gap: 8px;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15,23,42,0.92);
             backdrop-filter: blur(8px);
             padding: 8px 12px;
             border-radius: 35px;
-            border: 1px solid rgba(197, 160, 89, 0.5);
+            border: 1px solid rgba(197,160,89,0.5);
             max-width: 92vw;
             overflow-x: auto;
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
-
-        .scene-nav::-webkit-scrollbar {
-            display: none;
-        }
-
+        .scene-nav::-webkit-scrollbar { display: none; }
         .scene-btn {
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255,255,255,0.2);
             color: #e2e8f0;
             padding: 7px 14px;
             border-radius: 20px;
@@ -279,17 +232,54 @@
             align-items: center;
             gap: 6px;
             flex-shrink: 0;
+            direction: ltr;
+            text-transform: capitalize;
         }
-
         .scene-btn.active {
             background: var(--primary-gold);
-            color: #ffffff;
+            color: #fff;
             border-color: var(--primary-gold);
         }
+        .menu-card:focus-visible, .lang-btn:focus-visible,
+        .btn-back:focus-visible, .scene-btn:focus-visible {
+            outline: 3px solid var(--primary-gold);
+            outline-offset: 3px;
+        }
+        #viewer-status[hidden] { display: none; }
+        #viewer-status {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            pointer-events: none;
+        }
+        .status-card {
+            max-width: 340px;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+            background: rgba(15,23,42,0.93);
+            border: 1px solid var(--primary-gold);
+            border-radius: 16px;
+            pointer-events: auto;
+        }
+        .status-card p { line-height: 1.8; }
+        .retry-btn {
+            margin-top: 12px;
+            padding: 8px 18px;
+            background: var(--primary-gold);
+            border: 0;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .retry-btn[hidden] { display: none; }
     </style>
 </head>
 <body>
-
     <div class="top-bar">
         <button type="button" class="lang-btn" onclick="toggleLanguage()">
             <i class="fa-solid fa-globe"></i>
@@ -302,7 +292,7 @@
             <div class="logo-wrapper">
                 <img src="logo.png" alt="World Heart Hotel" onerror="this.onerror=null; this.src='fff.png';">
             </div>
-            <div class="stars">
+            <div class="stars" aria-label="Five stars">
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
@@ -310,60 +300,17 @@
                 <i class="fa-solid fa-star"></i>
             </div>
             <h1 class="hotel-title" id="txt-title">فندق قلب العالم</h1>
-            <p class="hotel-subtitle" id="txt-subtitle">حدد القسم المطلوب لبدء الجولة التفاعلية 360°</p>
+            <p class="hotel-subtitle" id="txt-subtitle">استكشف غرف الفندق بجولة تفاعلية 360°</p>
         </div>
 
+        <!-- القسم الوحيد في الصفحة الرئيسية: الغرف -->
         <div class="menu-list">
-            <button type="button" class="menu-card" onclick="openTour('suite')">
+            <button type="button" class="menu-card" onclick="openTour(0)">
                 <div class="card-content">
                     <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
                     <div class="card-text">
-                        <h3 id="txt-suite-title">الغرف والأجنحة الفاخرة</h3>
-                        <p id="txt-suite-desc">استعراض جناح السفير والغرف الملكية</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </button>
-
-            <button type="button" class="menu-card" onclick="openTour('halls')">
-                <div class="card-content">
-                    <div class="card-icon"><i class="fa-solid fa-handshake"></i></div>
-                    <div class="card-text">
-                        <h3 id="txt-halls-title">قاعات الاجتماعات والفعاليات</h3>
-                        <p id="txt-halls-desc">قاعات مؤتمرات مجهزة بأحدث التقنيات</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </button>
-
-            <button type="button" class="menu-card" onclick="openTour('restaurant')">
-                <div class="card-content">
-                    <div class="card-icon"><i class="fa-solid fa-utensils"></i></div>
-                    <div class="card-text">
-                        <h3 id="txt-rest-title">المطاعم والجلسات (AZZURRO)</h3>
-                        <p id="txt-rest-desc">استكشف مطعم أزور والمطاعم المتميزة</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </button>
-
-            <button type="button" class="menu-card" onclick="openTour('gym')">
-                <div class="card-content">
-                    <div class="card-icon"><i class="fa-solid fa-dumbbell"></i></div>
-                    <div class="card-text">
-                        <h3 id="txt-gym-title">المركز الرياضي والسبا</h3>
-                        <p id="txt-gym-desc">أجهزة لياقة بدنية وحديثة مع السبا</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-left card-arrow"></i>
-            </button>
-
-            <button type="button" class="menu-card" onclick="openTour('lobby')">
-                <div class="card-content">
-                    <div class="card-icon"><i class="fa-solid fa-hotel"></i></div>
-                    <div class="card-text">
-                        <h3 id="txt-lobby-title">المدخل الرئيسي واللوبي</h3>
-                        <p id="txt-lobby-desc">الواجهة الخارجية والاستقبال الملكي</p>
+                        <h3 id="txt-rooms-title">الغرف</h3>
+                        <p id="txt-rooms-desc">اضغط لاستعراض الغرف العشر بتقنية 360°</p>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -371,158 +318,195 @@
         </div>
     </div>
 
-    <!-- Viewer Modal Layer -->
-    <div id="tour-overlay">
+    <div id="tour-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
         <button type="button" class="btn-back" onclick="closeTour()">
-            <i class="fa-solid fa-arrow-right" id="back-icon"></i> <span id="txt-back">العودة للقائمة</span>
+            <i class="fa-solid fa-arrow-right" id="back-icon"></i>
+            <span id="txt-back">العودة للقائمة</span>
         </button>
-
         <div id="panorama-view"></div>
-
-        <div class="scene-nav">
-            <button type="button" class="scene-btn" id="nav-btn-suite" onclick="switchScene('suite')">
-                <i class="fa-solid fa-bed"></i> <span id="nav-suite">الغرف والأجنحة</span>
-            </button>
-            <button type="button" class="scene-btn" id="nav-btn-halls" onclick="switchScene('halls')">
-                <i class="fa-solid fa-handshake"></i> <span id="nav-halls">قاعات الفعاليات</span>
-            </button>
-            <button type="button" class="scene-btn" id="nav-btn-restaurant" onclick="switchScene('restaurant')">
-                <i class="fa-solid fa-utensils"></i> <span id="nav-restaurant">المطاعم</span>
-            </button>
-            <button type="button" class="scene-btn" id="nav-btn-gym" onclick="switchScene('gym')">
-                <i class="fa-solid fa-dumbbell"></i> <span id="nav-gym">المركز الرياضي</span>
-            </button>
-            <button type="button" class="scene-btn" id="nav-btn-lobby" onclick="switchScene('lobby')">
-                <i class="fa-solid fa-hotel"></i> <span id="nav-lobby">المدخل واللوبي</span>
-            </button>
+        <div id="viewer-status" role="status" aria-live="polite" hidden>
+            <div class="status-card">
+                <p id="status-text"></p>
+                <button type="button" class="retry-btn" id="retry-btn" onclick="retryRoom()" hidden>إعادة المحاولة</button>
+            </div>
         </div>
+        <!-- شريط التنقل بين الغرف العشر -->
+        <nav class="scene-nav" id="scene-nav" dir="ltr" aria-label="Room navigation"></nav>
     </div>
 
     <script>
         var viewer = null;
         var currentLang = 'ar';
+        var currentRoomIndex = 0;
+        var loadSerial = 0;
+        var previousOverflow = '';
+
+        // الاسم الإنجليزي هو النص المعروض؛ اسم ملف PNG هو مسار الصورة على GitHub.
+        // يجب رفع الملفات العشرة إلى نفس مجلد index.html بالاسم نفسه تماماً.
+        var rooms = [
+            { name: 'premium city view', image: '805A.png' },
+            { name: 'premium river view', image: '807A.png' },
+            { name: 'grand river view', image: '808A.png' },
+            { name: 'deluxe river view twin bed', image: '809A.png' },
+            { name: 'deluxe river view king size bed', image: '811A.png' },
+            { name: 'prime suite', image: '816A.png' },
+            { name: 'panoramic suite', image: '818A.png' },
+            { name: 'grand city view', image: '1128A.png' },
+            { name: 'diplomatic suite', image: '1414A.png' },
+            { name: 'diplomatic junior suite', image: '1415A.png' }
+        ];
 
         var i18n = {
             ar: {
-                langBtnText: "English", title: "فندق قلب العالم", subtitle: "حدد القسم المطلوب لبدء الجولة التفاعلية 360°",
-                backBtn: "العودة للقائمة", suiteTitle: "الغرف والأجنحة الفاخرة", suiteDesc: "استعراض جناح السفير والغرف الملكية",
-                hallsTitle: "قاعات الاجتماعات والفعاليات", hallsDesc: "قاعات مؤتمرات مجهزة بأحدث التقنيات",
-                restTitle: "المطاعم والجلسات (AZZURRO)", restDesc: "استكشف مطعم أزور والمطاعم المتميزة",
-                gymTitle: "المركز الرياضي والسبا", gymDesc: "أجهزة لياقة بدنية وحديثة مع السبا",
-                lobbyTitle: "المدخل الرئيسي واللوبي", lobbyDesc: "الواجهة الخارجية والاستقبال الملكي",
-                navSuite: "الغرف والأجنحة", navHalls: "قاعات الفعاليات", navRest: "المطاعم", navGym: "المركز الرياضي", navLobby: "المدخل واللوبي"
+                langBtn: 'English',
+                title: 'فندق قلب العالم',
+                subtitle: 'استكشف غرف الفندق بجولة تفاعلية 360°',
+                roomsTitle: 'الغرف',
+                roomsDesc: 'اضغط لاستعراض الغرف العشر بتقنية 360°',
+                back: 'العودة للقائمة',
+                loading: 'جارٍ تحميل الغرفة...',
+                error: 'تعذر تحميل صورة هذه الغرفة. تأكد من اسم الملف ورفعه إلى GitHub.',
+                retry: 'إعادة المحاولة'
             },
             en: {
-                langBtnText: "العربية", title: "World Heart Hotel", subtitle: "Select a department to start the interactive 360° tour",
-                backBtn: "Back to Menu", suiteTitle: "Luxury Rooms & Suites", suiteDesc: "Explore the Ambassador Suite & Royal Rooms",
-                hallsTitle: "Meeting & Event Halls", hallsDesc: "Conference halls equipped with latest technology",
-                restTitle: "Restaurants & Dining (AZZURRO)", restDesc: "Discover Azzurro Restaurant & fine dining",
-                gymTitle: "Fitness Center & Spa", gymDesc: "Modern fitness equipment with spa facilities",
-                lobbyTitle: "Main Entrance & Lobby", lobbyDesc: "Exterior view & royal reception area",
-                navSuite: "Rooms & Suites", navHalls: "Event Halls", navRest: "Restaurants", navGym: "Fitness Center", navLobby: "Lobby"
+                langBtn: 'العربية',
+                title: 'World Heart Hotel',
+                subtitle: 'Explore our hotel rooms in an interactive 360° tour',
+                roomsTitle: 'Rooms',
+                roomsDesc: 'Explore all 10 rooms in 360°',
+                back: 'Back to Menu',
+                loading: 'Loading room panorama...',
+                error: 'Unable to load this room image. Check its filename and upload it to GitHub.',
+                retry: 'Try Again'
             }
         };
 
-        // مسارات الصور المحدثة
-        var sceneImages = {
-            'suite': 'fff.png',
-            'halls': 'fff.png',
-            'restaurant': 'fff.png',
-            'gym': 'fff.png',
-            'lobby': 'fff.png'
-        };
-
-        function setSafeText(id, val) {
-            var el = document.getElementById(id);
-            if (el) el.innerText = val;
+        function setText(id, value) {
+            document.getElementById(id).textContent = value;
         }
 
         function toggleLanguage() {
-            currentLang = (currentLang === 'ar') ? 'en' : 'ar';
-            var data = i18n[currentLang];
-            document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-
-            setSafeText('lang-btn-text', data.langBtnText);
-            setSafeText('txt-title', data.title);
-            setSafeText('txt-subtitle', data.subtitle);
-            setSafeText('txt-suite-title', data.suiteTitle);
-            setSafeText('txt-suite-desc', data.suiteDesc);
-            setSafeText('txt-halls-title', data.hallsTitle);
-            setSafeText('txt-halls-desc', data.hallsDesc);
-            setSafeText('txt-rest-title', data.restTitle);
-            setSafeText('txt-rest-desc', data.restDesc);
-            setSafeText('txt-gym-title', data.gymTitle);
-            setSafeText('txt-gym-desc', data.gymDesc);
-            setSafeText('txt-lobby-title', data.lobbyTitle);
-            setSafeText('txt-lobby-desc', data.lobbyDesc);
-            setSafeText('txt-back', data.backBtn);
-            
-            var backIcon = document.getElementById('back-icon');
-            if (backIcon) backIcon.className = currentLang === 'ar' ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
-
-            setSafeText('nav-suite', data.navSuite);
-            setSafeText('nav-halls', data.navHalls);
-            setSafeText('nav-restaurant', data.navRest);
-            setSafeText('nav-gym', data.navGym);
-            setSafeText('nav-lobby', data.navLobby);
-        }
-
-        function openTour(sceneKey) {
-            document.getElementById('tour-overlay').style.display = 'block';
-            switchScene(sceneKey);
-        }
-
-        function switchScene(sceneKey) {
-            var navBtns = document.querySelectorAll('.scene-btn');
-            navBtns.forEach(function(b) { b.classList.remove('active'); });
-            
-            var targetBtn = document.getElementById('nav-btn-' + sceneKey);
-            if (targetBtn) {
-                targetBtn.classList.add('active');
-                targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            var t = i18n[currentLang];
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            setText('lang-btn-text', t.langBtn);
+            setText('txt-title', t.title);
+            setText('txt-subtitle', t.subtitle);
+            setText('txt-rooms-title', t.roomsTitle);
+            setText('txt-rooms-desc', t.roomsDesc);
+            setText('txt-back', t.back);
+            setText('retry-btn', t.retry);
+            document.getElementById('back-icon').className = currentLang === 'ar'
+                ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+            var status = document.getElementById('viewer-status');
+            if (!status.hidden) {
+                setStatus(document.getElementById('retry-btn').hidden ? t.loading : t.error,
+                          !document.getElementById('retry-btn').hidden);
             }
+        }
 
-            var imgPath = sceneImages[sceneKey] || sceneImages['lobby'];
-            var container = document.getElementById('panorama-view');
-            container.innerHTML = '';
+        function makeRoomButtons() {
+            var nav = document.getElementById('scene-nav');
+            rooms.forEach(function(room, index) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'scene-btn';
+                button.setAttribute('aria-label', room.name);
+                button.innerHTML = '<i class="fa-solid fa-bed" aria-hidden="true"></i>';
+                var label = document.createElement('span');
+                label.textContent = room.name;
+                button.appendChild(label);
+                button.addEventListener('click', function() { switchRoom(index); });
+                nav.appendChild(button);
+            });
+        }
 
+        function setStatus(message, isError) {
+            var box = document.getElementById('viewer-status');
+            box.hidden = !message;
+            setText('status-text', message || '');
+            document.getElementById('retry-btn').hidden = !isError;
+        }
+
+        function openTour(roomIndex) {
+            var overlay = document.getElementById('tour-overlay');
+            if (overlay.style.display !== 'block') {
+                previousOverflow = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+            }
+            overlay.style.display = 'block';
+            overlay.setAttribute('aria-hidden', 'false');
+            switchRoom(roomIndex);
+        }
+
+        function switchRoom(roomIndex) {
+            if (!Number.isInteger(roomIndex) || roomIndex < 0 || roomIndex >= rooms.length) return;
+            currentRoomIndex = roomIndex;
+            var serial = ++loadSerial;
+            var buttons = document.querySelectorAll('.scene-btn');
+            buttons.forEach(function(button, index) {
+                var active = index === roomIndex;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            buttons[roomIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+            // تدمير العارض السابق قبل تنظيف الحاوية.
             if (viewer) {
-                try { viewer.destroy(); } catch (e) {}
-                viewer = null;
-            }
-
-            var isPannellumLoaded = (typeof pannellum !== 'undefined' && pannellum.viewer);
-            
-            if (isPannellumLoaded) {
-                try {
-                    viewer = pannellum.viewer('panorama-view', {
-                        "type": "equirectangular",
-                        "panorama": imgPath,
-                        "autoLoad": true,
-                        "autoRotate": -2,
-                        "compass": false,
-                        "showZoomCtrl": true
-                    });
-                } catch (e) {
-                    renderImageFallback(container, imgPath);
-                }
-            } else {
-                renderImageFallback(container, imgPath);
-            }
-        }
-
-        function renderImageFallback(container, imgSrc) {
-            container.innerHTML = '<img src="' + imgSrc + '" style="max-width:100%; max-height:100%; object-fit:contain;" alt="Tour View">';
-        }
-
-        function closeTour() {
-            document.getElementById('tour-overlay').style.display = 'none';
-            if (viewer) {
-                try { viewer.destroy(); } catch (e) {}
+                try { viewer.destroy(); } catch (e) { console.warn(e); }
                 viewer = null;
             }
             document.getElementById('panorama-view').innerHTML = '';
+            setStatus(i18n[currentLang].loading, false);
+
+            if (typeof pannellum === 'undefined' || typeof pannellum.viewer !== 'function') {
+                setStatus(i18n[currentLang].error, true);
+                return;
+            }
+            try {
+                viewer = pannellum.viewer('panorama-view', {
+                    type: 'equirectangular',
+                    panorama: rooms[roomIndex].image,
+                    autoLoad: true,
+                    autoRotate: -2,
+                    compass: false,
+                    showZoomCtrl: true
+                });
+                viewer.on('load', function() {
+                    if (serial === loadSerial) setStatus('', false);
+                });
+                viewer.on('error', function() {
+                    if (serial === loadSerial) setStatus(i18n[currentLang].error, true);
+                });
+            } catch (e) {
+                console.error('Room panorama error:', e);
+                if (serial === loadSerial) setStatus(i18n[currentLang].error, true);
+            }
         }
+
+        function retryRoom() { switchRoom(currentRoomIndex); }
+
+        function closeTour() {
+            loadSerial++;
+            var overlay = document.getElementById('tour-overlay');
+            overlay.style.display = 'none';
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = previousOverflow;
+            if (viewer) {
+                try { viewer.destroy(); } catch (e) { console.warn(e); }
+                viewer = null;
+            }
+            document.getElementById('panorama-view').innerHTML = '';
+            setStatus('', false);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('tour-overlay').style.display === 'block') {
+                closeTour();
+            }
+        });
+        makeRoomButtons();
     </script>
 </body>
 </html>
