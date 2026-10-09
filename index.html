@@ -238,6 +238,75 @@
   color: #fff;
   border-color: var(--primary-gold);
   }
+  /* Elegant 360° door portals. Coordinates are defined below in primePortalPosition. */
+  #panorama-view .pnlm-hotspot-base.hotel-portal {
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #panorama-view .hotel-portal .portal-circle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    color: #fff;
+    font-size: 23px;
+    border-radius: 50%;
+    border: 2px solid #eacb86;
+    background: rgba(19, 29, 48, .93);
+    box-shadow: 0 6px 22px rgba(0,0,0,.38), inset 0 0 0 3px rgba(197,160,89,.14);
+    transition: background .22s ease, box-shadow .22s ease;
+  }
+  #panorama-view .hotel-portal .portal-circle::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border: 1px solid rgba(234,203,134,.7);
+    border-radius: 50%;
+    animation: portal-glow 2.3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  #panorama-view .hotel-portal:hover .portal-circle,
+  #panorama-view .hotel-portal:focus-visible .portal-circle {
+    background: #b68d43;
+    box-shadow: 0 8px 28px rgba(0,0,0,.45);
+  }
+  #panorama-view .hotel-portal:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+  }
+  #panorama-view .hotel-portal .portal-label {
+    position: absolute;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(250px, 80vw);
+    padding: 7px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(234,203,134,.66);
+    background: rgba(19,29,48,.92);
+    color: #fff;
+    font: 700 12px/1.65 'Cairo', sans-serif;
+    text-align: center;
+    white-space: normal;
+    box-shadow: 0 5px 16px rgba(0,0,0,.3);
+    pointer-events: none;
+  }
+  @keyframes portal-glow {
+    0%, 100% { opacity: .8; }
+    50% { opacity: .2; }
+  }
   .menu-card:focus-visible, .lang-btn:focus-visible,
   .btn-back:focus-visible, .scene-btn:focus-visible {
   outline: 3px solid var(--primary-gold);
@@ -321,7 +390,7 @@
   .retry-btn[hidden] { display: none; }
   .retry-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) {
-  .golden-loader::before { animation: none; }
+  .golden-loader::before, .hotel-portal .portal-circle::before { animation: none !important; }
   #viewer-status { transition-duration: 0s; }
   }
  </style>
@@ -385,6 +454,19 @@
   var previousOverflow = '';
   var loadingTimer = null;
   var preloadedRoom = { index: -1, image: null };
+  // Prime Suite has two panoramas, but remains ONE button in the bottom navigation.
+  var PRIME_INDEX = 5;
+  var PRIME_SECOND_SCENE = 'prime-suite-part-two';
+  var PRIME_SECOND_IMAGE = '816A2.png';
+  // Initial approximate hotspot positions, editable after inspecting both images.
+  // Pitch = vertical angle; yaw = horizontal angle (both in degrees).
+  var primePortalPosition = {
+    first: { pitch: -10, yaw: 0 },
+    second: { pitch: -10, yaw: 0 }
+  };
+  var preloadedPrimeSecond = null;
+  var lastSceneId = null;
+
   var rooms = [
   { name: 'premium city view', image: '805A.png' },
   { name: 'premium river view', image: '807A.png' },
@@ -406,7 +488,9 @@
   back: 'العودة للقائمة',
   loading: 'جارٍ تجهيز المشهد...',
   error: 'تعذر تحميل صورة الغرفة. تحقق من اتصالك ومن اسم ملف الصورة على GitHub.',
-  retry: 'إعادة المحاولة'
+  retry: 'إعادة المحاولة',
+  goToSecond: 'انتقل إلى الجزء الثاني من الجناح',
+  goToFirst: 'العودة إلى الجزء الأول من الجناح'
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
@@ -415,7 +499,9 @@
   back: 'Back to Menu',
   loading: 'Preparing your 360° view...',
   error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
-  retry: 'Try Again'
+  retry: 'Try Again',
+  goToSecond: 'Explore the second part of the suite',
+  goToFirst: 'Return to the first part of the suite'
   }
   };
   function setText(id, value) {
@@ -443,18 +529,71 @@
   }
   }
   function roomId(index) { return 'room-' + index; }
+  // Build an accessible, visible portal without adding any extra room button.
+  function createPortalTooltip(node, labelKey) {
+    var label = i18n[currentLang][labelKey];
+    node.setAttribute('role', 'button');
+    node.setAttribute('tabindex', '0');
+    node.setAttribute('aria-label', label);
+    var circle = document.createElement('span');
+    circle.className = 'portal-circle';
+    var icon = document.createElement('i');
+    icon.className = 'fa-solid fa-door-open';
+    icon.setAttribute('aria-hidden', 'true');
+    circle.appendChild(icon);
+    var caption = document.createElement('span');
+    caption.className = 'portal-label';
+    caption.textContent = label;
+    caption.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    node.appendChild(circle);
+    node.appendChild(caption);
+    node.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        node.click();
+      }
+    });
+  }
+  function primePortal(position, destination, labelKey) {
+    return {
+      pitch: position.pitch,
+      yaw: position.yaw,
+      type: 'scene',
+      sceneId: destination,
+      text: i18n[currentLang][labelKey],
+      cssClass: 'hotel-portal',
+      createTooltipFunc: createPortalTooltip,
+      createTooltipArgs: labelKey,
+      targetYaw: 0,
+      targetPitch: 0
+    };
+  }
   function buildScenes() {
-  var scenes = {};
-  rooms.forEach(function(room, index) {
-  scenes[roomId(index)] = {
-  type: 'equirectangular',
-  panorama: room.image,
-  pitch: 0,
-  yaw: 0,
-  hfov: 100
-  };
-  });
-  return scenes;
+    var scenes = {};
+    rooms.forEach(function(room, index) {
+      scenes[roomId(index)] = {
+        type: 'equirectangular',
+        panorama: room.image,
+        pitch: 0,
+        yaw: 0,
+        hfov: 100
+      };
+    });
+    // Two 360° photos connected in both directions within one Prime Suite entry.
+    scenes[roomId(PRIME_INDEX)].hotSpots = [
+      primePortal(primePortalPosition.first, PRIME_SECOND_SCENE, 'goToSecond')
+    ];
+    scenes[PRIME_SECOND_SCENE] = {
+      type: 'equirectangular',
+      panorama: PRIME_SECOND_IMAGE,
+      pitch: 0,
+      yaw: 0,
+      hfov: 100,
+      hotSpots: [
+        primePortal(primePortalPosition.second, roomId(PRIME_INDEX), 'goToFirst')
+      ]
+    };
+    return scenes;
   }
   function makeRoomButtons() {
   var nav = document.getElementById('scene-nav');
@@ -532,6 +671,18 @@
   };
   image.src = rooms[next].image;
   }
+  // Download the suite's companion panorama in the background after the first opens.
+  function preloadPrimeSecond() {
+    if (navigator.connection && navigator.connection.saveData) return;
+    if (preloadedPrimeSecond) return;
+    var image = new Image();
+    image.decoding = 'async';
+    preloadedPrimeSecond = image;
+    image.onerror = function() {
+      if (preloadedPrimeSecond === image) preloadedPrimeSecond = null;
+    };
+    image.src = PRIME_SECOND_IMAGE;
+  }
   function createViewer(index) {
   if (typeof pannellum === 'undefined' || typeof pannellum.viewer !== 'function') {
   showLoadError();
@@ -554,12 +705,30 @@
   scenes: buildScenes()
   });
   viewer = instance;
+  lastSceneId = roomId(index);
+  // Pannellum fires scenechange for built-in portal clicks as well as menu navigation.
+  instance.on('scenechange', function(sceneId) {
+    if (viewer !== instance) return;
+    var previous = lastSceneId;
+    lastSceneId = sceneId;
+    if (sceneId === PRIME_SECOND_SCENE) {
+      currentRoomIndex = PRIME_INDEX;
+      updateNavigation(PRIME_INDEX);
+    }
+    // For portal clicks there is no switchRoom() call, so handle the loader here.
+    if (sceneId === PRIME_SECOND_SCENE || previous === PRIME_SECOND_SCENE) {
+      startLoader(currentRoomIndex, false);
+    }
+  });
   instance.on('load', function() {
-  if (viewer !== instance) return;
-  if (document.getElementById('tour-overlay').style.display !== 'block') return;
-  if (instance.getScene() !== roomId(currentRoomIndex) || !instance.isLoaded()) return;
-  hideLoader();
-  preloadNextRoom(currentRoomIndex);
+    if (viewer !== instance) return;
+    if (document.getElementById('tour-overlay').style.display !== 'block') return;
+    if (!instance.isLoaded()) return;
+    var sceneId = instance.getScene();
+    if (sceneId !== roomId(currentRoomIndex) && sceneId !== PRIME_SECOND_SCENE) return;
+    hideLoader();
+    if (sceneId === roomId(PRIME_INDEX)) preloadPrimeSecond();
+    preloadNextRoom(currentRoomIndex);
   });
   instance.on('error', function(error) {
   if (viewer !== instance) return;
@@ -610,6 +779,7 @@
   try { viewer.destroy(); } catch (error) { console.warn(error); }
   viewer = null;
   }
+  lastSceneId = null;
   document.getElementById('panorama-view').innerHTML = '';
   startLoader(currentRoomIndex, true);
   createViewer(currentRoomIndex);
@@ -625,6 +795,7 @@
   viewer = null;
   }
   document.getElementById('panorama-view').innerHTML = '';
+  lastSceneId = null;
   }
   document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape' &&
