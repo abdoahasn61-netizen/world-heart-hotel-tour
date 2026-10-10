@@ -169,6 +169,8 @@
   z-index: 999999;
   display: none;
   overflow: hidden;
+  /* Pannellum must keep LTR coordinates even when the site language is Arabic. */
+  direction: ltr;
   }
   #panorama-view {
   width: 100%;
@@ -176,6 +178,10 @@
   position: absolute;
   inset: 0;
   z-index: 10;
+  direction: ltr;
+  }
+  #panorama-view .pnlm-container, #panorama-view .pnlm-render-container {
+    direction: ltr !important;
   }
   .btn-back {
   position: absolute;
@@ -238,6 +244,54 @@
   color: #fff;
   border-color: var(--primary-gold);
   }
+  /* Hotspot placement tool is hidden from regular visitors. Open ?editHotspots=1 to calibrate. */
+  #portal-editor[hidden] { display: none !important; }
+  #portal-editor {
+    position: absolute;
+    z-index: 110;
+    left: 50%;
+    bottom: calc(102px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    width: min(420px, calc(100vw - 24px));
+    color: #fff;
+    text-align: center;
+    background: rgba(15, 23, 42, 0.94);
+    border: 1px solid #c5a059;
+    border-radius: 16px;
+    padding: 10px 14px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    font: 600 12px/1.6 'Cairo', sans-serif;
+  }
+  #portal-editor .editor-heading { font-weight: 800; color: #efd28b; }
+  #portal-editor .editor-notice { font-size: 11px; color: #d1d5db; }
+  #portal-code {
+    display: block;
+    direction: ltr;
+    text-align: left;
+    width: 100%;
+    height: 62px;
+    min-height: 62px;
+    margin: 6px 0 7px;
+    padding: 6px;
+    font: 11px/1.5 monospace;
+    border: 1px solid #64748b;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #0f172a;
+    resize: none;
+  }
+  #portal-editor .editor-button {
+    padding: 5px 14px;
+    font: 700 12px 'Cairo', sans-serif;
+    border: 0;
+    border-radius: 20px;
+    background: #c5a059;
+    color: #111827;
+    cursor: pointer;
+  }
+  #portal-editor .editor-button:focus-visible { outline: 3px solid #fff; }
+  /* Do not trigger scene navigation while the owner is placing a hotspot. */
+  #tour-overlay.is-calibrating #panorama-view .hotel-portal { pointer-events: none !important; }
   /* Elegant 360° door portals. Coordinates are defined below in primePortalPosition. */
   #panorama-view .pnlm-hotspot-base.hotel-portal {
     width: 64px;
@@ -430,12 +484,21 @@
   </button>
   </div>
  </div>
- <div id="tour-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
+ <div id="tour-overlay" dir="ltr" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
   <button type="button" class="btn-back" onclick="closeTour()">
   <i class="fa-solid fa-arrow-right" id="back-icon"></i>
   <span id="txt-back">العودة للقائمة</span>
   </button>
-  <div id="panorama-view"></div>
+  <div id="panorama-view" dir="ltr"></div>
+  <!-- Owner-only calibration, enabled with ?editHotspots=1 -->
+  <section id="portal-editor" dir="rtl" hidden aria-label="ضبط نقاط الانتقال">
+    <div class="editor-heading" id="editor-heading">📍 ضبط موقع نقطة الانتقال</div>
+    <div id="editor-instruction">حرّك الصورة حتى يظهر الباب، ثم المس منتصف الباب لتثبيت النقطة عليه.</div>
+    <textarea id="portal-code" rows="2" readonly aria-label="إحداثيات النقاط لإرسالها للمطور"></textarea>
+    <button type="button" class="editor-button" id="editor-switch" onclick="switchPrimePartForEditing()">المشهد الثاني</button>
+    <button type="button" class="editor-button" id="editor-copy" onclick="copyPortalCoordinates()">نسخ الإحداثيات</button>
+    <div class="editor-notice" id="editor-notice">الإحداثيات تُحفظ على هذا المتصفح فقط؛ أرسلها لي لتثبيتها لجميع زوار الموقع.</div>
+  </section>
   <div id="viewer-status" role="status" aria-live="polite" aria-hidden="true">
   <div class="status-card">
   <div class="golden-loader" aria-hidden="true"><span id="status-symbol">360°</span></div>
@@ -458,12 +521,28 @@
   var PRIME_INDEX = 5;
   var PRIME_SECOND_SCENE = 'prime-suite-part-two';
   var PRIME_SECOND_IMAGE = '816A2.png';
-  // Initial approximate hotspot positions, editable after inspecting both images.
-  // Pitch = vertical angle; yaw = horizontal angle (both in degrees).
+  // APPROXIMATE entry points. Use ?editHotspots=1 to touch the exact doors.
+  // Copy the resulting coordinates here when publishing them for EVERY visitor.
+  // The two parts are kept under ONE Prime Suite navigation button.
   var primePortalPosition = {
-    first: { pitch: -10, yaw: 0 },
-    second: { pitch: -10, yaw: 0 }
+    first: { pitch: -8, yaw: 35 },
+    second: { pitch: -8, yaw: -30 }
   };
+  var editingHotspots = new URLSearchParams(window.location.search).get('editHotspots') === '1';
+  // Personal calibration overrides (stored only in the owner's current browser).
+  try {
+    var savedPortalPositions = JSON.parse(localStorage.getItem('worldHeartPrimePortalPositions'));
+    if (savedPortalPositions && savedPortalPositions.first && savedPortalPositions.second &&
+        ['first', 'second'].every(function(key) {
+          var point = savedPortalPositions[key];
+          return typeof point.pitch === 'number' && Number.isFinite(point.pitch) &&
+            point.pitch >= -90 && point.pitch <= 90 &&
+            typeof point.yaw === 'number' && Number.isFinite(point.yaw) &&
+            point.yaw >= -180 && point.yaw <= 180;
+        })) {
+      primePortalPosition = savedPortalPositions;
+    }
+  } catch (error) { console.warn('Hotspot local preferences unavailable:', error); }
   var preloadedPrimeSecond = null;
   var lastSceneId = null;
 
@@ -490,7 +569,14 @@
   error: 'تعذر تحميل صورة الغرفة. تحقق من اتصالك ومن اسم ملف الصورة على GitHub.',
   retry: 'إعادة المحاولة',
   goToSecond: 'انتقل إلى الجزء الثاني من الجناح',
-  goToFirst: 'العودة إلى الجزء الأول من الجناح'
+  goToFirst: 'العودة إلى الجزء الأول من الجناح',
+  editorTitle: '📍 ضبط نقطة الانتقال',
+  editorInstruction: 'حرّك الصورة حتى يظهر الباب، ثم المس منتصف الباب لتثبيت النقطة عليه.',
+  editorCopy: 'نسخ الإحداثيات',
+  editorSwitchFirst: 'المشهد الأول',
+  editorSwitchSecond: 'المشهد الثاني',
+  editorCopied: 'تم نسخ الإحداثيات',
+  editorNotice: 'الإحداثيات تحفظ على جهازك فقط. أرسلها لي لتثبيتها لجميع زوار الموقع.'
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
@@ -501,7 +587,14 @@
   error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
   retry: 'Try Again',
   goToSecond: 'Explore the second part of the suite',
-  goToFirst: 'Return to the first part of the suite'
+  goToFirst: 'Return to the first part of the suite',
+  editorTitle: '📍 Set the door hotspot',
+  editorInstruction: 'Rotate the view to the doorway, then tap the center of the door to place the hotspot.',
+  editorCopy: 'Copy coordinates',
+  editorSwitchFirst: 'First scene',
+  editorSwitchSecond: 'Second scene',
+  editorCopied: 'Coordinates copied',
+  editorNotice: 'Positions are saved only on this browser. Send the coordinates for the public site update.'
   }
   };
   function setText(id, value) {
@@ -512,6 +605,9 @@
   var t = i18n[currentLang];
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  // The panorama and its input controls must never inherit RTL direction.
+  document.getElementById('tour-overlay').dir = 'ltr';
+  document.getElementById('panorama-view').dir = 'ltr';
   setText('lang-btn-text', t.langBtn);
   setText('txt-title', t.title);
   setText('txt-subtitle', t.subtitle);
@@ -521,6 +617,7 @@
   setText('retry-btn', t.retry);
   document.getElementById('back-icon').className = currentLang === 'ar'
   ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
+  updateEditorPanel();
   var status = document.getElementById('viewer-status');
   if (status.classList.contains('is-visible')) {
   setText('status-text', i18n[currentLang][
@@ -556,6 +653,7 @@
   }
   function primePortal(position, destination, labelKey) {
     return {
+      id: labelKey === 'goToSecond' ? 'prime-hotspot-forward' : 'prime-hotspot-back',
       pitch: position.pitch,
       yaw: position.yaw,
       type: 'scene',
@@ -595,6 +693,84 @@
     };
     return scenes;
   }
+  // An owner can tap a door to obtain exact equirectangular pitch/yaw.
+  // Pannellum's mouseEventToCoords keeps hotspots anchored to the 360° image.
+  function editorScenePart() {
+    if (!viewer) return null;
+    var scene = viewer.getScene();
+    if (scene === roomId(PRIME_INDEX)) return 'first';
+    if (scene === PRIME_SECOND_SCENE) return 'second';
+    return null;
+  }
+  function formatPortalCoordinates() {
+    return 'first: { pitch: ' + primePortalPosition.first.pitch.toFixed(2) +
+      ', yaw: ' + primePortalPosition.first.yaw.toFixed(2) + ' },\n' +
+      'second: { pitch: ' + primePortalPosition.second.pitch.toFixed(2) +
+      ', yaw: ' + primePortalPosition.second.yaw.toFixed(2) + ' }';
+  }
+  function updateEditorPanel() {
+    var overlay = document.getElementById('tour-overlay');
+    var panel = document.getElementById('portal-editor');
+    var visible = editingHotspots && overlay.style.display === 'block' &&
+      currentRoomIndex === PRIME_INDEX;
+    panel.hidden = !visible;
+    overlay.classList.toggle('is-calibrating', visible);
+    if (!visible) return;
+    var lang = i18n[currentLang];
+    setText('editor-heading', lang.editorTitle);
+    setText('editor-instruction', lang.editorInstruction);
+    setText('editor-copy', lang.editorCopy);
+    setText('editor-switch', editorScenePart() === 'second' ? lang.editorSwitchFirst : lang.editorSwitchSecond);
+    setText('editor-notice', lang.editorNotice);
+    panel.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('portal-code').value = formatPortalCoordinates();
+  }
+  function placePortalOnDoor(event) {
+    if (!editingHotspots || !viewer || !viewer.isLoaded()) return;
+    if (event.target.closest('.pnlm-controls-container, .pnlm-controls, .hotel-portal')) return;
+    var part = editorScenePart();
+    if (!part) return;
+    var coords;
+    try { coords = viewer.mouseEventToCoords(event); }
+    catch (error) { console.warn('Coordinate pick failed:', error); return; }
+    if (!Array.isArray(coords) || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
+    var sceneId = part === 'first' ? roomId(PRIME_INDEX) : PRIME_SECOND_SCENE;
+    var hotspotId = part === 'first' ? 'prime-hotspot-forward' : 'prime-hotspot-back';
+    var newPoint = {
+      pitch: Math.max(-90, Math.min(90, +coords[0].toFixed(2))),
+      yaw: ((+coords[1].toFixed(2) + 180) % 360 + 360) % 360 - 180
+    };
+    primePortalPosition[part] = newPoint;
+    try {
+      viewer.removeHotSpot(hotspotId, sceneId);
+      viewer.addHotSpot(primePortal(newPoint,
+        part === 'first' ? PRIME_SECOND_SCENE : roomId(PRIME_INDEX),
+        part === 'first' ? 'goToSecond' : 'goToFirst'), sceneId);
+    } catch (error) { console.error('Could not update door marker:', error); }
+    try { localStorage.setItem('worldHeartPrimePortalPositions', JSON.stringify(primePortalPosition)); }
+    catch (error) { console.warn('Could not save hotspot placement:', error); }
+    updateEditorPanel();
+  }
+  function switchPrimePartForEditing() {
+    if (!editingHotspots || !viewer || !editorScenePart()) return;
+    var destination = editorScenePart() === 'first' ? PRIME_SECOND_SCENE : roomId(PRIME_INDEX);
+    try { viewer.loadScene(destination); }
+    catch (error) { console.error('Could not switch calibration scene:', error); }
+  }
+  function copyPortalCoordinates() {
+    var field = document.getElementById('portal-code');
+    field.focus();
+    field.select();
+    var fallback = function() {
+      try { document.execCommand('copy'); } catch (error) { /* Manual selection still works */ }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(field.value).then(function() {
+        setText('editor-copy', i18n[currentLang].editorCopied);
+      }, fallback);
+    } else { fallback(); }
+  }
+  document.getElementById('panorama-view').addEventListener('click', placePortalOnDoor);
   function makeRoomButtons() {
   var nav = document.getElementById('scene-nav');
   rooms.forEach(function(room, index) {
@@ -624,6 +800,7 @@
   if (buttons[index]) {
   buttons[index].scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
   }
+  updateEditorPanel();
   }
   function hideLoader() {
   clearTimeout(loadingTimer);
@@ -696,7 +873,8 @@
   firstScene: roomId(index),
   sceneFadeDuration: reduceMotion ? 0 : 750,
   autoLoad: true,
-  autoRotate: reduceMotion ? 0 : -2,
+  // Pause auto-rotation when selecting a physical doorway.
+  autoRotate: (reduceMotion || editingHotspots) ? 0 : -2,
   showZoomCtrl: true,
   showFullscreenCtrl: true,
   compass: false,
@@ -715,6 +893,7 @@
       currentRoomIndex = PRIME_INDEX;
       updateNavigation(PRIME_INDEX);
     }
+    updateEditorPanel();
     // For portal clicks there is no switchRoom() call, so handle the loader here.
     if (sceneId === PRIME_SECOND_SCENE || previous === PRIME_SECOND_SCENE) {
       startLoader(currentRoomIndex, false);
@@ -750,6 +929,7 @@
   overlay.style.display = 'block';
   overlay.setAttribute('aria-hidden', 'false');
   switchRoom(index);
+  updateEditorPanel();
   }
   function switchRoom(index) {
   if (!Number.isInteger(index) || index < 0 || index >= rooms.length) return;
@@ -788,6 +968,7 @@
   var overlay = document.getElementById('tour-overlay');
   overlay.style.display = 'none';
   overlay.setAttribute('aria-hidden', 'true');
+  updateEditorPanel();
   document.body.style.overflow = previousOverflow;
   hideLoader();
   if (viewer) {
