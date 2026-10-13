@@ -441,7 +441,7 @@
   </div>
   </div>
   <div class="tour-navigation" id="tour-navigation">
-    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="Prime Suite areas" hidden>
+    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام جناح برايم" hidden>
       <button type="button" class="suite-part-btn" id="suite-bedroom" onclick="selectSuitePart('bedroom')" aria-pressed="true">
         <i class="fa-solid fa-bed" aria-hidden="true"></i><span id="suite-bedroom-label">غرفة النوم</span>
       </button>
@@ -491,7 +491,8 @@
   error: 'تعذر تحميل صورة الغرفة. تحقق من اتصالك ومن اسم ملف الصورة على GitHub.',
   retry: 'إعادة المحاولة',
   bedroom: 'غرفة النوم',
-  livingRoom: 'غرفة المعيشة'
+  livingRoom: 'غرفة المعيشة',
+  suiteAreas: 'أقسام جناح برايم'
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
@@ -502,7 +503,8 @@
   error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
   retry: 'Try Again',
   bedroom: 'Bedroom',
-  livingRoom: 'Living Room'
+  livingRoom: 'Living Room',
+  suiteAreas: 'Prime Suite areas'
   }
   };
   function setText(id, value) {
@@ -527,6 +529,7 @@
   ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
   setText('suite-bedroom-label', t.bedroom);
   setText('suite-living-label', t.livingRoom);
+  document.getElementById('suite-subnav').setAttribute('aria-label', t.suiteAreas);
   var status = document.getElementById('viewer-status');
   if (status.classList.contains('is-visible')) {
   setText('status-text', i18n[currentLang][
