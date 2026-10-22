@@ -256,7 +256,7 @@
   color: #fff;
   border-color: var(--primary-gold);
   }
-  /* These controls appear only for Prime Suite, directly above its button. */
+  /* Suite area selectors appear above the room list only for suites with multiple views. */
   .suite-subnav[hidden] { display: none !important; }
   .suite-subnav {
     display: flex;
@@ -271,6 +271,22 @@
     box-shadow: 0 8px 26px rgba(0,0,0,.38);
     pointer-events: auto;
     animation: suite-expand .25s ease-out both;
+  }
+  /* Four Royal Suite scenes fit as two rows on phones without horizontal scrolling. */
+  .suite-subnav.four-parts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(440px, 92vw);
+    max-width: 92vw;
+    border-radius: 20px;
+  }
+  .suite-subnav.four-parts .suite-part-btn {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.45;
+    min-height: 46px;
+    padding: 9px 10px;
   }
   .suite-part-btn {
     padding: 10px 14px;
@@ -419,7 +435,7 @@
   <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
   <div class="card-text">
   <h3 id="txt-rooms-title">الغرف</h3>
-  <p id="txt-rooms-desc">اضغط لاستعراض الغرف العشر بتقنية 360°</p>
+  <p id="txt-rooms-desc">اضغط لاستعراض الغرف الإحدى عشرة بتقنية 360°</p>
   </div>
   </div>
   <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -441,14 +457,7 @@
   </div>
   </div>
   <div class="tour-navigation" id="tour-navigation">
-    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام الجناح" hidden>
-      <button type="button" class="suite-part-btn" id="suite-bedroom" onclick="selectSuitePart('bedroom')" aria-pressed="true">
-        <i class="fa-solid fa-bed" aria-hidden="true"></i><span id="suite-bedroom-label">غرفة النوم</span>
-      </button>
-      <button type="button" class="suite-part-btn" id="suite-living" onclick="selectSuitePart('living')" aria-pressed="false">
-        <i class="fa-solid fa-couch" aria-hidden="true"></i><span id="suite-living-label">غرفة المعيشة</span>
-      </button>
-    </div>
+    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام الجناح" hidden></div>
     <nav class="scene-nav" id="scene-nav" dir="ltr" aria-label="Room navigation"></nav>
   </div>
  </div>
@@ -460,18 +469,36 @@
   var previousOverflow = '';
   var loadingTimer = null;
   var preloadedRoom = { index: -1, image: null };
-  // Suites share the same two-button submenu without adding new main menu entries.
-  // Indices correspond to the stable ten-room list below.
+  // Each suite is ONE entry in the main navigation. Its additional scenes stay in a sub-menu.
+  // The first entry always matches rooms[index].image and opens by default.
   var SUITE_PARTS = {
-    5: { livingScene: 'prime-suite-living-room', image: '816A2.png' },
-    8: { livingScene: 'diplomatic-suite-living-room', image: '1414b2.png' },
-    9: { livingScene: 'diplomatic-junior-suite-living-room', image: '1415A.png' }
+    0: [
+      { key: 'reception', scene: 'room-0', image: '1613a4.png', icon: 'fa-solid fa-couch' },
+      { key: 'firstBedroom', scene: 'royal-bedroom-1', image: '1613a1.png', icon: 'fa-solid fa-bed' },
+      { key: 'secondBedroom', scene: 'royal-bedroom-2', image: '1613a2.png', icon: 'fa-solid fa-bed' },
+      { key: 'kitchen', scene: 'royal-kitchen', image: '1613a3.png', icon: 'fa-solid fa-utensils' }
+    ],
+    6: [
+      { key: 'bedroom', scene: 'room-6', image: '816A.png', icon: 'fa-solid fa-bed' },
+      { key: 'livingRoom', scene: 'prime-suite-living-room', image: '816A2.png', icon: 'fa-solid fa-couch' }
+    ],
+    9: [
+      { key: 'bedroom', scene: 'room-9', image: '1414b.png', icon: 'fa-solid fa-bed' },
+      { key: 'livingRoom', scene: 'diplomatic-suite-living-room', image: '1414b2.png', icon: 'fa-solid fa-couch' }
+    ],
+    10: [
+      { key: 'bedroom', scene: 'room-10', image: '1414A.png', icon: 'fa-solid fa-bed' },
+      { key: 'livingRoom', scene: 'diplomatic-junior-suite-living-room', image: '1415A.png', icon: 'fa-solid fa-couch' }
+    ]
   };
   var preloadedSuiteParts = {};
+  var subnavRenderedFor = -1;
+  var subnavRenderedLang = '';
   var lastSceneId = null;
   var targetSceneId = null;
 
   var rooms = [
+  { name: 'royal suite', image: '1613a4.png' },
   { name: 'premium city view', image: '805A.png' },
   { name: 'premium river view', image: '807A.png' },
   { name: 'grand river view', image: '808A.png' },
@@ -488,25 +515,33 @@
   langBtn: 'English', title: 'فندق قلب العالم',
   subtitle: 'استكشف غرف الفندق بجولة تفاعلية 360°',
   roomsTitle: 'الغرف',
-  roomsDesc: 'اضغط لاستعراض الغرف العشر بتقنية 360°',
+  roomsDesc: 'اضغط لاستعراض الغرف الإحدى عشرة بتقنية 360°',
   back: 'العودة للقائمة',
   loading: 'جارٍ تجهيز المشهد...',
   error: 'تعذر تحميل صورة الغرفة. تحقق من اتصالك ومن اسم ملف الصورة على GitHub.',
   retry: 'إعادة المحاولة',
   bedroom: 'غرفة النوم',
   livingRoom: 'غرفة المعيشة',
+  reception: 'غرفة الاستقبال',
+  firstBedroom: 'غرفة النوم الأولى',
+  secondBedroom: 'غرفة النوم الثانية',
+  kitchen: 'المطبخ',
   suiteAreas: 'أقسام الجناح'
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
   subtitle: 'Explore our hotel rooms in an interactive 360° tour',
-  roomsTitle: 'Rooms', roomsDesc: 'Explore all 10 rooms in 360°',
+  roomsTitle: 'Rooms', roomsDesc: 'Explore all 11 rooms in 360°',
   back: 'Back to Menu',
   loading: 'Preparing your 360° view...',
   error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
   retry: 'Try Again',
   bedroom: 'Bedroom',
   livingRoom: 'Living Room',
+  reception: 'Reception',
+  firstBedroom: 'First Bedroom',
+  secondBedroom: 'Second Bedroom',
+  kitchen: 'Kitchen',
   suiteAreas: 'Suite areas'
   }
   };
@@ -530,8 +565,6 @@
   setText('retry-btn', t.retry);
   document.getElementById('back-icon').className = currentLang === 'ar'
   ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
-  setText('suite-bedroom-label', t.bedroom);
-  setText('suite-living-label', t.livingRoom);
   updateSuiteSubnav();
   if (suiteConfig(currentRoomIndex)) {
     setText('status-room', suitePartLabel(currentRoomIndex, targetSceneId));
@@ -545,6 +578,11 @@
   }
   function roomId(index) { return 'room-' + index; }
   function suiteConfig(index) { return SUITE_PARTS[index] || null; }
+  function suitePartForScene(index, sceneId) {
+    var parts = suiteConfig(index);
+    if (!parts) return null;
+    return parts.find(function(part) { return part.scene === sceneId; }) || null;
+  }
   function sceneRoomIndex(sceneId) {
     if (/^room-\d+$/.test(sceneId)) {
       var number = Number(sceneId.substring(5));
@@ -553,7 +591,7 @@
     var suiteIndices = Object.keys(SUITE_PARTS);
     for (var i = 0; i < suiteIndices.length; i++) {
       var index = Number(suiteIndices[i]);
-      if (SUITE_PARTS[index].livingScene === sceneId) return index;
+      if (suitePartForScene(index, sceneId)) return index;
     }
     return -1;
   }
@@ -566,46 +604,67 @@
       };
     });
     Object.keys(SUITE_PARTS).forEach(function(key) {
-      var suite = SUITE_PARTS[key];
-      scenes[suite.livingScene] = {
-        type: 'equirectangular', panorama: suite.image,
-        pitch: 0, yaw: 0, hfov: 100
-      };
+      SUITE_PARTS[key].forEach(function(part) {
+        if (!scenes[part.scene]) scenes[part.scene] = {
+          type: 'equirectangular', panorama: part.image,
+          pitch: 0, yaw: 0, hfov: 100
+        };
+      });
     });
     return scenes;
   }
-  function suiteScene(index, part) {
-    var config = suiteConfig(index);
-    if (!config) return roomId(index);
-    return part === 'living' ? config.livingScene : roomId(index);
-  }
   function suitePartLabel(index, sceneId) {
-    var config = suiteConfig(index);
-    if (!config) return rooms[index].name;
-    return i18n[currentLang][sceneId === config.livingScene ? 'livingRoom' : 'bedroom'];
+    var part = suitePartForScene(index, sceneId);
+    return part ? i18n[currentLang][part.key] : rooms[index].name;
   }
   function updateSuiteSubnav() {
-    var config = suiteConfig(currentRoomIndex);
-    var shown = !!config &&
+    var parts = suiteConfig(currentRoomIndex);
+    var shown = !!parts &&
       document.getElementById('tour-overlay').style.display === 'block';
     var panel = document.getElementById('suite-subnav');
     panel.hidden = !shown;
     panel.setAttribute('aria-hidden', String(!shown));
+    panel.classList.toggle('four-parts', !!parts && parts.length === 4);
     panel.setAttribute('aria-label', shown ?
       (currentLang === 'ar' ? 'أقسام ' : 'Areas of ') + rooms[currentRoomIndex].name :
       i18n[currentLang].suiteAreas);
-    var livingActive = shown && targetSceneId === config.livingScene;
-    ['bedroom', 'living'].forEach(function(part) {
-      var btn = document.getElementById('suite-' + part);
-      var isActive = shown && part === (livingActive ? 'living' : 'bedroom');
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-pressed', String(isActive));
+    if (!shown) return;
+
+    // Rebuild labels only when switching suites or languages; preserve button focus otherwise.
+    if (subnavRenderedFor !== currentRoomIndex || subnavRenderedLang !== currentLang) {
+      panel.textContent = '';
+      parts.forEach(function(part) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'suite-part-btn';
+        button.setAttribute('aria-pressed', 'false');
+        var icon = document.createElement('i');
+        icon.className = part.icon;
+        icon.setAttribute('aria-hidden', 'true');
+        var label = document.createElement('span');
+        label.textContent = i18n[currentLang][part.key];
+        button.appendChild(icon);
+        button.appendChild(label);
+        button.addEventListener('click', function() { selectSuitePart(part.key); });
+        panel.appendChild(button);
+      });
+      subnavRenderedFor = currentRoomIndex;
+      subnavRenderedLang = currentLang;
+    }
+    var active = suitePartForScene(currentRoomIndex, targetSceneId);
+    var buttons = panel.querySelectorAll('.suite-part-btn');
+    parts.forEach(function(part, i) {
+      var selected = active ? part.key === active.key : i === 0;
+      buttons[i].classList.toggle('active', selected);
+      buttons[i].setAttribute('aria-pressed', String(selected));
     });
   }
-  function selectSuitePart(part) {
-    if (part !== 'bedroom' && part !== 'living') return;
-    if (!suiteConfig(currentRoomIndex)) return;
-    switchToScene(suiteScene(currentRoomIndex, part), currentRoomIndex);
+  function selectSuitePart(key) {
+    var parts = suiteConfig(currentRoomIndex);
+    if (!parts) return;
+    var part = parts.find(function(entry) { return entry.key === key; });
+    if (!part) return;
+    switchToScene(part.scene, currentRoomIndex);
   }
   function makeRoomButtons() {
   var nav = document.getElementById('scene-nav');
@@ -684,20 +743,21 @@
   };
   image.src = rooms[next].image;
   }
-  // Preload the other part of the selected suite (not a new navigation item).
+  // Keep one extra suite scene ready, moving through the four Royal Suite scenes in order.
   function preloadSuiteCompanion(index, sceneId) {
     if (navigator.connection && navigator.connection.saveData) return;
-    var config = suiteConfig(index);
-    if (!config) return;
-    var companionId = sceneId === config.livingScene ? roomId(index) : config.livingScene;
-    if (preloadedSuiteParts[companionId]) return;
+    var parts = suiteConfig(index);
+    if (!parts || parts.length < 2) return;
+    var position = parts.findIndex(function(part) { return part.scene === sceneId; });
+    var next = parts[(position + 1) % parts.length];
+    if (preloadedSuiteParts[next.scene]) return;
     var image = new Image();
     image.decoding = 'async';
-    preloadedSuiteParts[companionId] = image;
+    preloadedSuiteParts[next.scene] = image;
     image.onerror = function() {
-      if (preloadedSuiteParts[companionId] === image) delete preloadedSuiteParts[companionId];
+      if (preloadedSuiteParts[next.scene] === image) delete preloadedSuiteParts[next.scene];
     };
-    image.src = companionId === config.livingScene ? config.image : rooms[index].image;
+    image.src = next.image;
   }
   function createViewer(index) {
     if (typeof pannellum === 'undefined' || typeof pannellum.viewer !== 'function') {
@@ -786,7 +846,7 @@
   }
   function switchRoom(index) {
     if (!Number.isInteger(index) || index < 0 || index >= rooms.length) return;
-    // Selecting any suite from the main list starts at its bedroom; the submenu selects living.
+    // Selecting a suite starts at its first scene (Royal Reception, other suites Bedroom).
     switchToScene(roomId(index), index);
   }
   function retryRoom() {
