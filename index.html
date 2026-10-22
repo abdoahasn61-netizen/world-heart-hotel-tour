@@ -258,40 +258,36 @@
   }
   /* Suite area selectors appear above the room list only for suites with multiple views. */
   .suite-subnav[hidden] { display: none !important; }
+  /* All suite areas use a single swipeable horizontal row, just like the main room bar. */
   .suite-subnav {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
+    width: max-content;
     max-width: 92vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    direction: ltr;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
     background: rgba(15,23,42,0.95);
     border: 1px solid rgba(197,160,89,0.66);
-    border-radius: 25px;
-    padding: 7px;
+    border-radius: 35px;
+    padding: 7px 9px;
     box-shadow: 0 8px 26px rgba(0,0,0,.38);
     pointer-events: auto;
     animation: suite-expand .25s ease-out both;
   }
-  /* Four Royal Suite scenes fit as two rows on phones without horizontal scrolling. */
-  .suite-subnav.four-parts {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: min(440px, 92vw);
-    max-width: 92vw;
-    border-radius: 20px;
-  }
-  .suite-subnav.four-parts .suite-part-btn {
-    width: 100%;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.45;
-    min-height: 46px;
-    padding: 9px 10px;
-  }
+  .suite-subnav::-webkit-scrollbar { display: none; }
   .suite-part-btn {
+    flex: 0 0 auto;
     padding: 10px 14px;
     min-height: 43px;
-    min-width: 0;
+    min-width: max-content;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,.22);
     color: #f8fafc;
