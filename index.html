@@ -441,7 +441,7 @@
   </div>
   </div>
   <div class="tour-navigation" id="tour-navigation">
-    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام جناح برايم" hidden>
+    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام الجناح" hidden>
       <button type="button" class="suite-part-btn" id="suite-bedroom" onclick="selectSuitePart('bedroom')" aria-pressed="true">
         <i class="fa-solid fa-bed" aria-hidden="true"></i><span id="suite-bedroom-label">غرفة النوم</span>
       </button>
@@ -460,11 +460,14 @@
   var previousOverflow = '';
   var loadingTimer = null;
   var preloadedRoom = { index: -1, image: null };
-  // Two panoramas, ONE Prime Suite entry in the main list.
-  var PRIME_INDEX = 5;
-  var PRIME_SECOND_SCENE = 'prime-suite-living-room';
-  var PRIME_SECOND_IMAGE = '816A2.png';
-  var preloadedPrimeSecond = null;
+  // Suites share the same two-button submenu without adding new main menu entries.
+  // Indices correspond to the stable ten-room list below.
+  var SUITE_PARTS = {
+    5: { livingScene: 'prime-suite-living-room', image: '816A2.png' },
+    8: { livingScene: 'diplomatic-suite-living-room', image: '1414b2.png' },
+    9: { livingScene: 'diplomatic-junior-suite-living-room', image: '1415A.png' }
+  };
+  var preloadedSuiteParts = {};
   var lastSceneId = null;
   var targetSceneId = null;
 
@@ -477,8 +480,8 @@
   { name: 'prime suite', image: '816A.png' },
   { name: 'panoramic suite', image: '818A.png' },
   { name: 'grand city view', image: '1128A.png' },
-  { name: 'diplomatic suite', image: '1414A.png' },
-  { name: 'diplomatic junior suite', image: '1415A.png' }
+  { name: 'diplomatic suite', image: '1414b.png' },
+  { name: 'diplomatic junior suite', image: '1414A.png' }
   ];
   var i18n = {
   ar: {
@@ -492,7 +495,7 @@
   retry: 'إعادة المحاولة',
   bedroom: 'غرفة النوم',
   livingRoom: 'غرفة المعيشة',
-  suiteAreas: 'أقسام جناح برايم'
+  suiteAreas: 'أقسام الجناح'
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
@@ -504,7 +507,7 @@
   retry: 'Try Again',
   bedroom: 'Bedroom',
   livingRoom: 'Living Room',
-  suiteAreas: 'Prime Suite areas'
+  suiteAreas: 'Suite areas'
   }
   };
   function setText(id, value) {
@@ -529,7 +532,10 @@
   ? 'fa-solid fa-arrow-right' : 'fa-solid fa-arrow-left';
   setText('suite-bedroom-label', t.bedroom);
   setText('suite-living-label', t.livingRoom);
-  document.getElementById('suite-subnav').setAttribute('aria-label', t.suiteAreas);
+  updateSuiteSubnav();
+  if (suiteConfig(currentRoomIndex)) {
+    setText('status-room', suitePartLabel(currentRoomIndex, targetSceneId));
+  }
   var status = document.getElementById('viewer-status');
   if (status.classList.contains('is-visible')) {
   setText('status-text', i18n[currentLang][
@@ -538,6 +544,19 @@
   }
   }
   function roomId(index) { return 'room-' + index; }
+  function suiteConfig(index) { return SUITE_PARTS[index] || null; }
+  function sceneRoomIndex(sceneId) {
+    if (/^room-\d+$/.test(sceneId)) {
+      var number = Number(sceneId.substring(5));
+      return number >= 0 && number < rooms.length ? number : -1;
+    }
+    var suiteIndices = Object.keys(SUITE_PARTS);
+    for (var i = 0; i < suiteIndices.length; i++) {
+      var index = Number(suiteIndices[i]);
+      if (SUITE_PARTS[index].livingScene === sceneId) return index;
+    }
+    return -1;
+  }
   function buildScenes() {
     var scenes = {};
     rooms.forEach(function(room, index) {
@@ -546,33 +565,47 @@
         pitch: 0, yaw: 0, hfov: 100
       };
     });
-    scenes[PRIME_SECOND_SCENE] = {
-      type: 'equirectangular', panorama: PRIME_SECOND_IMAGE,
-      pitch: 0, yaw: 0, hfov: 100
-    };
+    Object.keys(SUITE_PARTS).forEach(function(key) {
+      var suite = SUITE_PARTS[key];
+      scenes[suite.livingScene] = {
+        type: 'equirectangular', panorama: suite.image,
+        pitch: 0, yaw: 0, hfov: 100
+      };
+    });
     return scenes;
   }
-  // The two buttons are not additional entries in the ten-room navigation.
-  function suiteScene(part) {
-    return part === 'living' ? PRIME_SECOND_SCENE : roomId(PRIME_INDEX);
+  function suiteScene(index, part) {
+    var config = suiteConfig(index);
+    if (!config) return roomId(index);
+    return part === 'living' ? config.livingScene : roomId(index);
+  }
+  function suitePartLabel(index, sceneId) {
+    var config = suiteConfig(index);
+    if (!config) return rooms[index].name;
+    return i18n[currentLang][sceneId === config.livingScene ? 'livingRoom' : 'bedroom'];
   }
   function updateSuiteSubnav() {
-    var shown = currentRoomIndex === PRIME_INDEX &&
+    var config = suiteConfig(currentRoomIndex);
+    var shown = !!config &&
       document.getElementById('tour-overlay').style.display === 'block';
     var panel = document.getElementById('suite-subnav');
     panel.hidden = !shown;
     panel.setAttribute('aria-hidden', String(!shown));
-    var livingActive = targetSceneId === PRIME_SECOND_SCENE;
+    panel.setAttribute('aria-label', shown ?
+      (currentLang === 'ar' ? 'أقسام ' : 'Areas of ') + rooms[currentRoomIndex].name :
+      i18n[currentLang].suiteAreas);
+    var livingActive = shown && targetSceneId === config.livingScene;
     ['bedroom', 'living'].forEach(function(part) {
       var btn = document.getElementById('suite-' + part);
-      var isActive = part === (livingActive ? 'living' : 'bedroom');
+      var isActive = shown && part === (livingActive ? 'living' : 'bedroom');
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-pressed', String(isActive));
     });
   }
   function selectSuitePart(part) {
     if (part !== 'bedroom' && part !== 'living') return;
-    switchToScene(suiteScene(part), PRIME_INDEX);
+    if (!suiteConfig(currentRoomIndex)) return;
+    switchToScene(suiteScene(currentRoomIndex, part), currentRoomIndex);
   }
   function makeRoomButtons() {
   var nav = document.getElementById('scene-nav');
@@ -617,9 +650,7 @@
   var status = document.getElementById('viewer-status');
   setText('status-symbol', '360°');
   setText('status-text', i18n[currentLang].loading);
-  setText('status-room', index === PRIME_INDEX ?
-    i18n[currentLang][targetSceneId === PRIME_SECOND_SCENE ? 'livingRoom' : 'bedroom'] :
-    rooms[index].name);
+  setText('status-room', suitePartLabel(index, targetSceneId));
   document.getElementById('retry-btn').hidden = true;
   var delay = immediately ? 80 : (preloadedRoom.index === index ? 450 : 230);
   loadingTimer = setTimeout(function() {
@@ -634,9 +665,7 @@
   var status = document.getElementById('viewer-status');
   setText('status-symbol', '!');
   setText('status-text', i18n[currentLang].error);
-  setText('status-room', currentRoomIndex === PRIME_INDEX ?
-    i18n[currentLang][targetSceneId === PRIME_SECOND_SCENE ? 'livingRoom' : 'bedroom'] :
-    rooms[currentRoomIndex].name);
+  setText('status-room', suitePartLabel(currentRoomIndex, targetSceneId));
   document.getElementById('retry-btn').hidden = false;
   status.classList.add('is-visible', 'is-error');
   status.setAttribute('aria-hidden', 'false');
@@ -655,17 +684,20 @@
   };
   image.src = rooms[next].image;
   }
-  // Download the suite's companion panorama in the background after the first opens.
-  function preloadPrimeSecond() {
+  // Preload the other part of the selected suite (not a new navigation item).
+  function preloadSuiteCompanion(index, sceneId) {
     if (navigator.connection && navigator.connection.saveData) return;
-    if (preloadedPrimeSecond) return;
+    var config = suiteConfig(index);
+    if (!config) return;
+    var companionId = sceneId === config.livingScene ? roomId(index) : config.livingScene;
+    if (preloadedSuiteParts[companionId]) return;
     var image = new Image();
     image.decoding = 'async';
-    preloadedPrimeSecond = image;
+    preloadedSuiteParts[companionId] = image;
     image.onerror = function() {
-      if (preloadedPrimeSecond === image) preloadedPrimeSecond = null;
+      if (preloadedSuiteParts[companionId] === image) delete preloadedSuiteParts[companionId];
     };
-    image.src = PRIME_SECOND_IMAGE;
+    image.src = companionId === config.livingScene ? config.image : rooms[index].image;
   }
   function createViewer(index) {
     if (typeof pannellum === 'undefined' || typeof pannellum.viewer !== 'function') {
@@ -694,10 +726,8 @@
         if (viewer !== instance) return;
         lastSceneId = sceneId;
         targetSceneId = sceneId;
-        if (sceneId === PRIME_SECOND_SCENE) currentRoomIndex = PRIME_INDEX;
-        else if (/^room-\d+$/.test(sceneId)) {
-          currentRoomIndex = Number(sceneId.substring(5));
-        }
+        var ownerIndex = sceneRoomIndex(sceneId);
+        if (ownerIndex >= 0) currentRoomIndex = ownerIndex;
         updateNavigation(currentRoomIndex);
       });
       instance.on('load', function() {
@@ -706,9 +736,7 @@
         if (!instance.isLoaded()) return;
         if (instance.getScene() !== targetSceneId) return;
         hideLoader();
-        if (currentRoomIndex === PRIME_INDEX && targetSceneId === roomId(PRIME_INDEX)) {
-          preloadPrimeSecond();
-        }
+        preloadSuiteCompanion(currentRoomIndex, targetSceneId);
         preloadNextRoom(currentRoomIndex);
       });
       instance.on('error', function(error) {
@@ -740,7 +768,7 @@
     if (viewer && viewer.getScene() === sceneId) {
       if (viewer.isLoaded()) {
         hideLoader();
-        if (index === PRIME_INDEX && sceneId === roomId(PRIME_INDEX)) preloadPrimeSecond();
+        preloadSuiteCompanion(index, sceneId);
         preloadNextRoom(index);
       }
       return;
@@ -758,7 +786,7 @@
   }
   function switchRoom(index) {
     if (!Number.isInteger(index) || index < 0 || index >= rooms.length) return;
-    // Selecting Prime Suite always starts at the bedroom; the submenu selects living.
+    // Selecting any suite from the main list starts at its bedroom; the submenu selects living.
     switchToScene(roomId(index), index);
   }
   function retryRoom() {
