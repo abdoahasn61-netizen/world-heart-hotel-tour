@@ -451,6 +451,16 @@
     </div>
     <i class="fa-solid fa-chevron-left card-arrow" aria-hidden="true"></i>
   </button>
+  <button type="button" class="menu-card" onclick="openTour(0, 'meetings')">
+    <div class="card-content">
+      <div class="card-icon"><i class="fa-solid fa-people-group" aria-hidden="true"></i></div>
+      <div class="card-text">
+        <h3 id="txt-meetings-title">قاعات الاجتماعات</h3>
+        <p id="txt-meetings-desc">استكشف قاعات الاجتماعات واللوبيات بجولة 360°</p>
+      </div>
+    </div>
+    <i class="fa-solid fa-chevron-left card-arrow" aria-hidden="true"></i>
+  </button>
   </div>
  </div>
  <div id="tour-overlay" dir="ltr" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
@@ -558,6 +568,26 @@
       { key: 'kitchen', scene: 'apartment-2-kitchen', image: 'a37.png', icon: 'fa-solid fa-utensils' }
     ]
   };
+  var meetings = [
+    { name: 'قاعة المسلة', image: 'e1.png' },
+    { name: 'لوبي قاعة المسلة', image: 'e2.png' },
+    { name: 'لوبي قصر المؤتمرات', image: 'e3.png' },
+    { name: 'قاعة المعرض', image: 'e4.png' },
+    { name: 'لوبي الحرير', image: 'e5.png' },
+    { name: 'قاعة الزمرد', image: 'e6.png' },
+    { name: 'قاعة اللجين', image: 'e7.png' },
+    { name: 'قاعة الملاك', image: 'e8.png' },
+    { name: 'مسرح النور', image: 'e9.png' },
+    { name: 'قاعة المسك', image: 'e11.png' },
+    { name: 'قاعة دجلة 1', image: 'e12.png' },
+    { name: 'قاعة دجلة 2', image: 'e13.png' }
+  ];
+  var MEETING_PARTS = {
+    8: [
+      { key: 'noorAngle1', scene: 'meeting-8', image: 'e9.png', icon: 'fa-solid fa-masks-theater', twoAngle: true },
+      { key: 'noorAngle2', scene: 'meeting-8-angle-2', image: 'e10.png', icon: 'fa-solid fa-masks-theater', twoAngle: true }
+    ]
+  };
   var i18n = {
   ar: {
   langBtn: 'English', title: 'فندق قلب العالم',
@@ -565,6 +595,8 @@
   roomsTitle: 'الغرف',
   apartmentsTitle: 'الشقق الفندقية',
   apartmentsDesc: 'استكشف الشقق الثلاث بجولة 360°',
+  meetingsTitle: 'قاعات الاجتماعات',
+  meetingsDesc: 'استكشف قاعات الاجتماعات واللوبيات بجولة 360°',
   roomsDesc: 'اضغط لاستعراض الغرف الإحدى عشرة بتقنية 360°',
   back: 'العودة للقائمة',
   loading: 'جارٍ تجهيز المشهد...',
@@ -579,6 +611,8 @@
   fourthBedroom: 'غرفة النوم الرابعة',
   livingView1: 'غرفة المعيشة · زاوية ١',
   livingView2: 'غرفة المعيشة · زاوية ٢',
+  noorAngle1: 'مسرح النور · زاوية ١',
+  noorAngle2: 'مسرح النور · زاوية ٢',
   kitchen: 'المطبخ',
   suiteAreas: 'أقسام الجناح'
   },
@@ -588,6 +622,8 @@
   roomsTitle: 'Rooms', roomsDesc: 'Explore all 11 rooms in 360°',
   apartmentsTitle: 'Apartments',
   apartmentsDesc: 'Explore our 3 luxury apartment suites in 360°',
+  meetingsTitle: 'Meeting Rooms',
+  meetingsDesc: 'Explore meeting halls and lobbies in 360°',
   back: 'Back to Menu',
   loading: 'Preparing your 360° view...',
   error: 'This room could not be loaded. Check your connection and the image filename on GitHub.',
@@ -601,6 +637,8 @@
   fourthBedroom: 'Fourth Bedroom',
   livingView1: 'Living Room · View 1',
   livingView2: 'Living Room · View 2',
+  noorAngle1: 'Noor Theater · View 1',
+  noorAngle2: 'Noor Theater · View 2',
   kitchen: 'Kitchen',
   suiteAreas: 'Suite areas'
   }
@@ -623,6 +661,8 @@
   setText('txt-rooms-desc', t.roomsDesc);
   setText('txt-apartments-title', t.apartmentsTitle);
   setText('txt-apartments-desc', t.apartmentsDesc);
+  setText('txt-meetings-title', t.meetingsTitle);
+  setText('txt-meetings-desc', t.meetingsDesc);
   document.getElementById('scene-nav').dataset.category = '';
   makeRoomButtons();
   setText('txt-back', t.back);
@@ -642,10 +682,18 @@
   }
   function roomId(index) { return 'room-' + index; }
   function apartmentId(index) { return 'apartment-' + index; }
-  function activeItems() { return currentCategory === 'apartments' ? apartments : rooms; }
-  function baseSceneId(index) { return currentCategory === 'apartments' ? apartmentId(index) : roomId(index); }
+  function meetingId(index) { return 'meeting-' + index; }
+  function activeItems() {
+    return currentCategory === 'apartments' ? apartments :
+      currentCategory === 'meetings' ? meetings : rooms;
+  }
+  function baseSceneId(index) {
+    return currentCategory === 'apartments' ? apartmentId(index) :
+      currentCategory === 'meetings' ? meetingId(index) : roomId(index);
+  }
   function suiteConfig(index) {
-    return (currentCategory === 'apartments' ? APARTMENT_PARTS : SUITE_PARTS)[index] || null;
+    return (currentCategory === 'apartments' ? APARTMENT_PARTS :
+      currentCategory === 'meetings' ? MEETING_PARTS : SUITE_PARTS)[index] || null;
   }
   function suitePartForScene(index, sceneId) {
     var parts = suiteConfig(index);
@@ -665,8 +713,14 @@
       if (apartmentNumber >= 0 && apartmentNumber < apartments.length)
         return { category: 'apartments', index: apartmentNumber };
     }
+    if (/^meeting-\d+$/.test(sceneId)) {
+      var meetingNumber = Number(sceneId.slice(8));
+      if (meetingNumber >= 0 && meetingNumber < meetings.length)
+        return { category: 'meetings', index: meetingNumber };
+    }
     var collections = [ { category: 'rooms', parts: SUITE_PARTS },
-                        { category: 'apartments', parts: APARTMENT_PARTS } ];
+                        { category: 'apartments', parts: APARTMENT_PARTS },
+                        { category: 'meetings', parts: MEETING_PARTS } ];
     for (var c = 0; c < collections.length; c++) {
       var collection = collections[c];
       var keys = Object.keys(collection.parts);
@@ -698,6 +752,20 @@
     // Apartment scenes live in the same Pannellum viewer but have distinct IDs.
     Object.keys(APARTMENT_PARTS).forEach(function(key) {
       APARTMENT_PARTS[key].forEach(function(part) {
+        if (!scenes[part.scene]) scenes[part.scene] = {
+          type: 'equirectangular', panorama: part.image,
+          pitch: 0, yaw: 0, hfov: 100
+        };
+      });
+    });
+    meetings.forEach(function(meeting, index) {
+      scenes[meetingId(index)] = {
+        type: 'equirectangular', panorama: meeting.image,
+        pitch: 0, yaw: 0, hfov: 100
+      };
+    });
+    Object.keys(MEETING_PARTS).forEach(function(key) {
+      MEETING_PARTS[key].forEach(function(part) {
         if (!scenes[part.scene]) scenes[part.scene] = {
           type: 'equirectangular', panorama: part.image,
           pitch: 0, yaw: 0, hfov: 100
@@ -773,8 +841,10 @@
   nav.textContent = '';
   nav.dataset.category = currentCategory;
   nav.setAttribute('aria-label', currentLang === 'ar'
-    ? (currentCategory === 'rooms' ? 'التنقل بين الغرف' : 'التنقل بين الشقق')
-    : (currentCategory === 'rooms' ? 'Room navigation' : 'Apartment navigation'));
+    ? (currentCategory === 'rooms' ? 'التنقل بين الغرف' :
+      currentCategory === 'apartments' ? 'التنقل بين الشقق' : 'التنقل بين قاعات الاجتماعات')
+    : (currentCategory === 'rooms' ? 'Room navigation' :
+      currentCategory === 'apartments' ? 'Apartment navigation' : 'Meeting room navigation'));
   activeItems().forEach(function(room, index) {
   var button = document.createElement('button');
   button.type = 'button';
@@ -782,7 +852,8 @@
   button.setAttribute('aria-label', room.name);
   button.setAttribute('aria-pressed', 'false');
   var icon = document.createElement('i');
-  icon.className = currentCategory === 'rooms' ? 'fa-solid fa-bed' : 'fa-solid fa-building';
+  icon.className = currentCategory === 'rooms' ? 'fa-solid fa-bed' :
+    currentCategory === 'apartments' ? 'fa-solid fa-building' : 'fa-solid fa-people-group';
   icon.setAttribute('aria-hidden', 'true');
   button.appendChild(icon);
   var label = document.createElement('span');
@@ -924,8 +995,9 @@
     }
   }
   function openTour(index, category) {
-    if (category !== 'rooms' && category !== 'apartments') return;
-    var collection = category === 'apartments' ? apartments : rooms;
+    if (category !== 'rooms' && category !== 'apartments' && category !== 'meetings') return;
+    var collection = category === 'apartments' ? apartments :
+      category === 'meetings' ? meetings : rooms;
     if (!Number.isInteger(index) || index < 0 || index >= collection.length) return;
     // Prevent a stale viewer from carrying the previous collection's scene across.
     if (viewer && currentCategory !== category) {
