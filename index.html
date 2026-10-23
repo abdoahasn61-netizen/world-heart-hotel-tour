@@ -88,6 +88,30 @@
   height: 100%;
   object-fit: cover;
   }
+  .logo-wrapper { text-decoration: none; cursor: pointer; }
+  .logo-wrapper:focus-visible,
+  .official-site-link:focus-visible {
+    outline: 3px solid var(--primary-gold);
+    outline-offset: 5px;
+  }
+  .official-site-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 25px auto 8px;
+    padding: 12px 16px;
+    color: var(--primary-gold);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-align: center;
+    border-radius: 12px;
+    transition: color 0.2s ease;
+  }
+  .official-site-link:hover { color: #e5bb75; }
+  .official-site-link i { font-size: 0.9em; }
   .stars {
   color: var(--primary-gold);
   font-size: 0.85rem;
@@ -408,9 +432,9 @@
  </div>
  <div class="app-container">
   <div class="header-section">
-  <div class="logo-wrapper">
+  <a class="logo-wrapper" href="https://www.worldhearthotel.net/" target="_blank" rel="noopener noreferrer" id="hotel-logo-link" aria-label="Visit the official World Heart Hotel website">
   <img src="logo.png" alt="World Heart Hotel" onerror="this.onerror=null; this.src='fff.png';">
-  </div>
+  </a>
   <div class="stars" aria-label="Five stars">
   <i class="fa-solid fa-star"></i>
   <i class="fa-solid fa-star"></i>
@@ -453,6 +477,10 @@
     <i class="fa-solid fa-chevron-left card-arrow" aria-hidden="true"></i>
   </button>
   </div>
+  <a class="official-site-link" id="official-site-link" href="https://www.worldhearthotel.net/" target="_blank" rel="noopener noreferrer">
+    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    <span id="txt-official-site">Visit our website, click here</span>
+  </a>
  </div>
  <div id="tour-overlay" dir="ltr" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
   <button type="button" class="btn-back" onclick="closeTour()">
@@ -582,6 +610,8 @@
   var i18n = {
   ar: {
   langBtn: 'English', title: 'فندق قلب العالم',
+  officialSite: 'لزيارة موقعنا اضغط هنا',
+  logoLinkLabel: 'زيارة الموقع الرسمي لفندق قلب العالم',
   subtitle: 'استكشف غرف الفندق بجولة تفاعلية 360°',
   roomsTitle: 'الغرف',
   apartmentsTitle: 'الشقق الفندقية',
@@ -609,6 +639,8 @@
   },
   en: {
   langBtn: 'العربية', title: 'World Heart Hotel',
+  officialSite: 'Visit our website, click here',
+  logoLinkLabel: 'Visit the official World Heart Hotel website',
   subtitle: 'Explore our hotel rooms in an interactive 360° tour',
   roomsTitle: 'Rooms', roomsDesc: 'Explore all 11 rooms in 360°',
   apartmentsTitle: 'Apartments',
@@ -647,6 +679,8 @@
   document.getElementById('panorama-view').dir = 'ltr';
   setText('lang-btn-text', t.langBtn);
   setText('txt-title', t.title);
+  setText('txt-official-site', t.officialSite);
+  document.getElementById('hotel-logo-link').setAttribute('aria-label', t.logoLinkLabel);
 
   setText('txt-rooms-title', t.roomsTitle);
 
