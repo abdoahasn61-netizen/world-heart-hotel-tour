@@ -416,6 +416,72 @@
   }
   .retry-btn[hidden] { display: none; }
   .retry-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  /* First-visit interactive guide. It appears only inside the panorama, not on the main menu. */
+  #tour-guide[hidden] { display: none !important; }
+  #tour-guide {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: max(20px, env(safe-area-inset-top, 0px)) 20px max(20px, env(safe-area-inset-bottom, 0px));
+    background: rgba(5, 10, 21, .76);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #f8fafc;
+  }
+  .guide-panel {
+    width: min(410px, 100%);
+    max-height: min(90dvh, 760px);
+    overflow-y: auto;
+    padding: 27px 22px 22px;
+    border: 1px solid rgba(197, 160, 89, .7);
+    border-radius: 25px;
+    background: #182234;
+    box-shadow: 0 24px 75px rgba(0, 0, 0, .5);
+    text-align: center;
+    direction: inherit;
+  }
+  .guide-heading {
+    color: #e0bd78;
+    font-weight: 800;
+    font-size: .8rem;
+    letter-spacing: .04em;
+    margin-bottom: 12px;
+  }
+  .guide-symbol {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 16px;
+    display: grid;
+    place-items: center;
+    color: #e8c780;
+    background: rgba(197,160,89,.11);
+    border: 1px solid rgba(197,160,89,.45);
+    border-radius: 22px;
+    font-size: 2.15rem;
+  }
+  .guide-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 10px; line-height: 1.6; }
+  .guide-description { font-size: .95rem; line-height: 1.9; color: #cbd5e1; min-height: 68px; }
+  .guide-dots { display: flex; justify-content: center; gap: 8px; margin: 18px 0 23px; }
+  .guide-dot { width: 8px; height: 8px; border-radius: 99px; background: #667185; transition: width .2s ease, background .2s ease; }
+  .guide-dot.active { width: 26px; background: var(--primary-gold); }
+  .guide-actions { display: flex; gap: 10px; justify-content: center; }
+  .guide-actions button {
+    font-size: .9rem;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 13px;
+    min-height: 46px;
+    padding: 9px 18px;
+  }
+  #guide-next { flex: 1; border: 0; background: var(--primary-gold); color: #152033; }
+  #guide-prev { border: 1px solid #697388; background: transparent; color: #fff; }
+  #guide-prev[hidden] { display: none; }
+  #guide-skip { margin-top: 14px; background: none; border: 0; color: #bcc6d8; text-decoration: underline; text-underline-offset: 4px; min-height: 40px; font-size: .8rem; cursor: pointer; }
+  #tour-guide button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  @media (max-height: 610px) { .guide-panel { padding: 16px 18px; } .guide-symbol { width: 55px; height: 55px; font-size: 1.5rem; margin-bottom: 6px; } .guide-dots { margin: 10px 0; } }
   @media (prefers-reduced-motion: reduce) {
   .golden-loader::before { animation: none !important; }
   .suite-subnav { animation: none; }
@@ -487,7 +553,7 @@
   <i class="fa-solid fa-arrow-left" id="back-icon"></i>
   <span id="txt-back">Back to Menu</span>
   </button>
-  <div id="panorama-view" dir="ltr"></div>
+  <div id="panorama-view" dir="ltr" tabindex="-1"></div>
   <div id="viewer-status" role="status" aria-live="polite" aria-hidden="true">
   <div class="status-card">
   <div class="golden-loader" aria-hidden="true"><span id="status-symbol">360°</span></div>
@@ -495,6 +561,20 @@
   <p id="status-room"></p>
   <button type="button" class="retry-btn" id="retry-btn" onclick="retryRoom()" hidden>Try Again</button>
   </div>
+  </div>
+  <div id="tour-guide" role="dialog" aria-modal="true" aria-labelledby="guide-title" aria-hidden="true" dir="ltr" hidden>
+    <div class="guide-panel">
+      <p class="guide-heading" id="guide-heading">YOUR 360° TOUR</p>
+      <div class="guide-symbol"><i id="guide-icon" class="fa-solid fa-hand-pointer" aria-hidden="true"></i></div>
+      <h2 class="guide-title" id="guide-title">Look around</h2>
+      <p class="guide-description" id="guide-description">Swipe across the panorama to explore the space.</p>
+      <div class="guide-dots" aria-hidden="true"><span class="guide-dot active"></span><span class="guide-dot"></span><span class="guide-dot"></span></div>
+      <div class="guide-actions">
+        <button type="button" id="guide-prev" onclick="previousGuideStep()" hidden>Back</button>
+        <button type="button" id="guide-next" onclick="nextGuideStep()">Next</button>
+      </div>
+      <button type="button" id="guide-skip" onclick="finishTourGuide()">Skip instructions</button>
+    </div>
   </div>
   <div class="tour-navigation" id="tour-navigation">
     <div class="suite-subnav" id="suite-subnav" role="group" aria-label="Suite areas" hidden></div>
@@ -508,6 +588,11 @@
   var currentRoomIndex = 0;
   var currentCategory = 'rooms'; // The two Royal Suites are separate tours.
   var previousOverflow = '';
+  var guideStep = 0;
+  var guideSeenThisPage = false;
+  var GUIDE_STORAGE_KEY = 'world-heart-hotel-360-guide-seen-v1';
+  var TOUR_HISTORY_KEY = 'worldHeartHotelTour';
+  var GUIDE_ICONS = ['fa-solid fa-hand-pointer', 'fa-solid fa-magnifying-glass-plus', 'fa-solid fa-layer-group'];
   var loadingTimer = null;
   var preloadedRoom = { category: '', index: -1, image: null };
   // Each suite is ONE entry in the main navigation. Its additional scenes stay in a sub-menu.
@@ -612,6 +697,13 @@
   langBtn: 'English', title: 'فندق قلب العالم',
   officialSite: 'لزيارة موقعنا اضغط هنا',
   logoLinkLabel: 'زيارة الموقع الرسمي لفندق قلب العالم',
+  guideHeading: 'دليلك إلى الجولة 360°',
+  guideSteps: [
+    { title: 'استكشف المكان', description: 'اسحب الصورة بإصبعك يميناً ويساراً وأعلى وأسفل لمشاهدة المكان من جميع الجهات.' },
+    { title: 'قرّب التفاصيل', description: 'استخدم إصبعين للتكبير والتصغير، أو اضغط على زري + و − الموجودين على الشاشة.' },
+    { title: 'تنقّل بين الأماكن', description: 'اختر المكان من الشريط السفلي، واستخدم القائمة الإضافية التي تظهر فوقه لاستكشاف المشاهد المتعددة.' }
+  ],
+  guideNext: 'التالي', guidePrev: 'السابق', guideStart: 'ابدأ الجولة', guideSkip: 'تخطي التعليمات',
   subtitle: 'استكشف غرف الفندق بجولة تفاعلية 360°',
   roomsTitle: 'الغرف',
   apartmentsTitle: 'الشقق الفندقية',
@@ -641,6 +733,13 @@
   langBtn: 'العربية', title: 'World Heart Hotel',
   officialSite: 'Visit our website, click here',
   logoLinkLabel: 'Visit the official World Heart Hotel website',
+  guideHeading: 'YOUR 360° TOUR',
+  guideSteps: [
+    { title: 'Look around', description: 'Swipe the panorama left, right, up or down to explore every part of the space.' },
+    { title: 'Zoom in and out', description: 'Pinch with two fingers to zoom, or use the + and − buttons on the screen.' },
+    { title: 'Explore more spaces', description: 'Use the bottom bar to switch spaces. A second bar appears for suites and halls with multiple views.' }
+  ],
+  guideNext: 'Next', guidePrev: 'Previous', guideStart: 'Start Tour', guideSkip: 'Skip instructions',
   subtitle: 'Explore our hotel rooms in an interactive 360° tour',
   roomsTitle: 'Rooms', roomsDesc: 'Explore all 11 rooms in 360°',
   apartmentsTitle: 'Apartments',
@@ -681,6 +780,7 @@
   setText('txt-title', t.title);
   setText('txt-official-site', t.officialSite);
   document.getElementById('hotel-logo-link').setAttribute('aria-label', t.logoLinkLabel);
+  renderTourGuide();
 
   setText('txt-rooms-title', t.roomsTitle);
 
@@ -1002,6 +1102,7 @@
           currentRoomIndex = owner.index;
         }
         updateNavigation(currentRoomIndex);
+        updateTourHistoryScene();
       });
       instance.on('load', function() {
         if (viewer !== instance) return;
@@ -1022,11 +1123,117 @@
       showLoadError();
     }
   }
-  function openTour(index, category) {
+  function hasSeenGuide() {
+    if (guideSeenThisPage) return true;
+    try { return window.localStorage.getItem(GUIDE_STORAGE_KEY) === 'yes'; }
+    catch (e) { return false; }
+  }
+  function renderTourGuide() {
+    var t = i18n[currentLang];
+    var step = t.guideSteps[guideStep];
+    var panel = document.getElementById('tour-guide');
+    panel.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    setText('guide-heading', t.guideHeading);
+    setText('guide-title', step.title);
+    setText('guide-description', step.description);
+    document.getElementById('guide-icon').className = GUIDE_ICONS[guideStep];
+    document.getElementById('guide-prev').hidden = guideStep === 0;
+    setText('guide-prev', t.guidePrev);
+    setText('guide-next', guideStep === t.guideSteps.length - 1 ? t.guideStart : t.guideNext);
+    setText('guide-skip', t.guideSkip);
+    Array.prototype.forEach.call(panel.querySelectorAll('.guide-dot'), function(dot, i) {
+      dot.classList.toggle('active', i === guideStep);
+    });
+  }
+  function showTourGuideOnce() {
+    if (hasSeenGuide()) return;
+    guideStep = 0;
+    renderTourGuide();
+    var guide = document.getElementById('tour-guide');
+    guide.hidden = false;
+    guide.setAttribute('aria-hidden', 'false');
+    document.getElementById('guide-next').focus({ preventScroll: true });
+  }
+  function hideTourGuide(markSeen) {
+    var guide = document.getElementById('tour-guide');
+    guide.hidden = true;
+    guide.setAttribute('aria-hidden', 'true');
+    if (markSeen) {
+      guideSeenThisPage = true;
+      try { window.localStorage.setItem(GUIDE_STORAGE_KEY, 'yes'); } catch (e) { /* Storage may be disabled. */ }
+    }
+  }
+  function nextGuideStep() {
+    var length = i18n[currentLang].guideSteps.length;
+    if (guideStep >= length - 1) { finishTourGuide(); return; }
+    guideStep++;
+    renderTourGuide();
+  }
+  function previousGuideStep() {
+    if (guideStep === 0) return;
+    guideStep--;
+    renderTourGuide();
+  }
+  function finishTourGuide() {
+    hideTourGuide(true);
+    document.getElementById('panorama-view').focus({ preventScroll: true });
+  }
+  function isTourHistoryState(state) {
+    var s = state === undefined ? window.history.state : state;
+    return !!(s && s[TOUR_HISTORY_KEY] === true);
+  }
+  function updateTourHistoryScene() {
+    if (!isTourHistoryState()) return;
+    var oldState = window.history.state;
+    try {
+      window.history.replaceState(Object.assign({}, oldState, {
+        category: currentCategory,
+        index: currentRoomIndex,
+        scene: targetSceneId
+      }), '', window.location.href);
+    } catch (error) {
+      console.warn('Unable to update tour history:', error);
+    }
+  }
+  function closeTourView() {
+    var overlay = document.getElementById('tour-overlay');
+    if (overlay.style.display !== 'block') return;
+    hideTourGuide(false);
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = previousOverflow;
+    hideLoader();
+    if (viewer) {
+      try { viewer.destroy(); } catch (error) { console.warn(error); }
+      viewer = null;
+    }
+    document.getElementById('panorama-view').innerHTML = '';
+    lastSceneId = null;
+    targetSceneId = null;
+    updateSuiteSubnav();
+  }
+  function openTour(index, category, options) {
     if (category !== 'rooms' && category !== 'apartments' && category !== 'meetings') return;
     var collection = category === 'apartments' ? apartments :
       category === 'meetings' ? meetings : rooms;
     if (!Number.isInteger(index) || index < 0 || index >= collection.length) return;
+    var restoring = !!(options && options.fromHistory);
+    // Every visit starts with exactly one browser-history entry for the entire tour.
+    // Scene changes update that entry rather than adding many unwanted Back presses.
+    var overlay = document.getElementById('tour-overlay');
+    var firstOpening = overlay.style.display !== 'block';
+    if (firstOpening && !restoring) {
+      var tourUrl = window.location.pathname + window.location.search + '#hotel-tour';
+      try {
+        window.history.pushState({
+          worldHeartHotelTour: true, category: category, index: index,
+          scene: category === 'rooms' ? roomId(index) :
+            category === 'apartments' ? apartmentId(index) : meetingId(index)
+        }, '', tourUrl);
+      } catch (error) {
+        console.warn('Browser history is unavailable in this context:', error);
+      }
+    }
     // Prevent a stale viewer from carrying the previous collection's scene across.
     if (viewer && currentCategory !== category) {
       try { viewer.destroy(); } catch (error) { console.warn(error); }
@@ -1034,20 +1241,27 @@
       document.getElementById('panorama-view').textContent = '';
     }
     currentCategory = category;
-    var overlay = document.getElementById('tour-overlay');
-    if (overlay.style.display !== 'block') {
+    if (firstOpening) {
       previousOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
     }
     overlay.style.display = 'block';
     overlay.setAttribute('aria-hidden', 'false');
-    switchRoom(index);
+    var savedScene = restoring && options && options.sceneId;
+    var owner = savedScene ? sceneOwner(savedScene) : null;
+    if (owner && owner.category === category && owner.index === index) {
+      switchToScene(savedScene, index);
+    } else {
+      switchRoom(index);
+    }
+    if (firstOpening) showTourGuideOnce();
   }
   function switchToScene(sceneId, index) {
     if (!Number.isInteger(index) || index < 0 || index >= activeItems().length) return;
     currentRoomIndex = index;
     targetSceneId = sceneId;
     updateNavigation(index);
+    updateTourHistoryScene();
     if (viewer && viewer.getScene() === sceneId) {
       if (viewer.isLoaded()) {
         hideLoader();
@@ -1083,20 +1297,21 @@
     createViewer(currentRoomIndex);
   }
   function closeTour() {
-    var overlay = document.getElementById('tour-overlay');
-    overlay.style.display = 'none';
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = previousOverflow;
-    hideLoader();
-    if (viewer) {
-      try { viewer.destroy(); } catch (error) { console.warn(error); }
-      viewer = null;
-    }
-    document.getElementById('panorama-view').innerHTML = '';
-    lastSceneId = null;
-    targetSceneId = null;
-    updateSuiteSubnav();
+    if (document.getElementById('tour-overlay').style.display !== 'block') return;
+    closeTourView();
+    // Remove the entry we created. The next Back press can then leave the site normally.
+    if (isTourHistoryState()) window.history.back();
   }
+  window.addEventListener('popstate', function(event) {
+    if (!isTourHistoryState(event.state)) {
+      // Native Android/Chrome Back while viewing a panorama returns to the main menu.
+      closeTourView();
+      return;
+    }
+    // Browser Forward restores the tour without creating a second history entry.
+    var state = event.state;
+    openTour(state.index, state.category, { fromHistory: true, sceneId: state.scene });
+  });
   document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape' &&
   document.getElementById('tour-overlay').style.display === 'block') {
@@ -1104,6 +1319,12 @@
   }
   });
   makeRoomButtons();
+  if (isTourHistoryState()) {
+    var initialTour = window.history.state;
+    openTour(initialTour.index, initialTour.category, {
+      fromHistory: true, sceneId: initialTour.scene
+    });
+  }
  </script>
 </body>
 </html>
