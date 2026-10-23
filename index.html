@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -102,11 +102,6 @@
   color: var(--text-main);
   margin-bottom: 6px;
   }
-  .hotel-subtitle {
-  font-size: 0.95rem;
-  color: var(--text-sub);
-  font-weight: 600;
-  }
   .menu-list { width: 100%; display: flex; flex-direction: column; gap: 14px; }
   .menu-card {
   width: 100%;
@@ -148,10 +143,6 @@
   font-size: 1.05rem;
   font-weight: 700;
   margin-bottom: 2px;
-  }
-  .card-text p {
-  font-size: 0.82rem;
-  color: var(--text-sub);
   }
   .card-arrow {
   color: #94a3b8;
@@ -412,7 +403,7 @@
  <div class="top-bar">
   <button type="button" class="lang-btn" onclick="toggleLanguage()">
   <i class="fa-solid fa-globe"></i>
-  <span id="lang-btn-text">English</span>
+  <span id="lang-btn-text">العربية</span>
   </button>
  </div>
  <div class="app-container">
@@ -427,16 +418,16 @@
   <i class="fa-solid fa-star"></i>
   <i class="fa-solid fa-star"></i>
   </div>
-  <h1 class="hotel-title" id="txt-title">فندق قلب العالم</h1>
-  <p class="hotel-subtitle" id="txt-subtitle">استكشف غرف الفندق بجولة تفاعلية 360°</p>
+  <h1 class="hotel-title" id="txt-title">World Heart Hotel</h1>
+
   </div>
   <div class="menu-list">
   <button type="button" class="menu-card" onclick="openTour(0, 'rooms')">
   <div class="card-content">
   <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
   <div class="card-text">
-  <h3 id="txt-rooms-title">الغرف</h3>
-  <p id="txt-rooms-desc">اضغط لاستعراض الغرف الإحدى عشرة بتقنية 360°</p>
+  <h3 id="txt-rooms-title">Rooms</h3>
+
   </div>
   </div>
   <i class="fa-solid fa-chevron-left card-arrow"></i>
@@ -445,8 +436,8 @@
     <div class="card-content">
       <div class="card-icon"><i class="fa-solid fa-building" aria-hidden="true"></i></div>
       <div class="card-text">
-        <h3 id="txt-apartments-title">الشقق الفندقية</h3>
-        <p id="txt-apartments-desc">استكشف الشقق الثلاث بجولة 360°</p>
+        <h3 id="txt-apartments-title">Apartments</h3>
+
       </div>
     </div>
     <i class="fa-solid fa-chevron-left card-arrow" aria-hidden="true"></i>
@@ -455,8 +446,8 @@
     <div class="card-content">
       <div class="card-icon"><i class="fa-solid fa-people-group" aria-hidden="true"></i></div>
       <div class="card-text">
-        <h3 id="txt-meetings-title">قاعات الاجتماعات</h3>
-        <p id="txt-meetings-desc">استكشف قاعات الاجتماعات واللوبيات بجولة 360°</p>
+        <h3 id="txt-meetings-title">Meeting Rooms</h3>
+
       </div>
     </div>
     <i class="fa-solid fa-chevron-left card-arrow" aria-hidden="true"></i>
@@ -465,27 +456,27 @@
  </div>
  <div id="tour-overlay" dir="ltr" role="dialog" aria-modal="true" aria-hidden="true" aria-label="360° Hotel Rooms Tour">
   <button type="button" class="btn-back" onclick="closeTour()">
-  <i class="fa-solid fa-arrow-right" id="back-icon"></i>
-  <span id="txt-back">العودة للقائمة</span>
+  <i class="fa-solid fa-arrow-left" id="back-icon"></i>
+  <span id="txt-back">Back to Menu</span>
   </button>
   <div id="panorama-view" dir="ltr"></div>
   <div id="viewer-status" role="status" aria-live="polite" aria-hidden="true">
   <div class="status-card">
   <div class="golden-loader" aria-hidden="true"><span id="status-symbol">360°</span></div>
-  <p id="status-text">جارٍ تجهيز المشهد...</p>
+  <p id="status-text">Preparing your 360° view...</p>
   <p id="status-room"></p>
-  <button type="button" class="retry-btn" id="retry-btn" onclick="retryRoom()" hidden>إعادة المحاولة</button>
+  <button type="button" class="retry-btn" id="retry-btn" onclick="retryRoom()" hidden>Try Again</button>
   </div>
   </div>
   <div class="tour-navigation" id="tour-navigation">
-    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="أقسام الجناح" hidden></div>
-    <nav class="scene-nav" id="scene-nav" dir="ltr" aria-label="التنقل بين الغرف"></nav>
+    <div class="suite-subnav" id="suite-subnav" role="group" aria-label="Suite areas" hidden></div>
+    <nav class="scene-nav" id="scene-nav" dir="ltr" aria-label="Room navigation"></nav>
   </div>
  </div>
  <script>
   'use strict';
   var viewer = null;
-  var currentLang = 'ar';
+  var currentLang = 'en';
   var currentRoomIndex = 0;
   var currentCategory = 'rooms'; // The two Royal Suites are separate tours.
   var previousOverflow = '';
@@ -569,18 +560,18 @@
     ]
   };
   var meetings = [
-    { name: 'قاعة المسلة', image: 'e1.png' },
-    { name: 'لوبي قاعة المسلة', image: 'e2.png' },
-    { name: 'لوبي قصر المؤتمرات', image: 'e3.png' },
-    { name: 'قاعة المعرض', image: 'e4.png' },
-    { name: 'لوبي الحرير', image: 'e5.png' },
-    { name: 'قاعة الزمرد', image: 'e6.png' },
-    { name: 'قاعة اللجين', image: 'e7.png' },
-    { name: 'قاعة الملاك', image: 'e8.png' },
-    { name: 'مسرح النور', image: 'e9.png' },
-    { name: 'قاعة المسك', image: 'e11.png' },
-    { name: 'قاعة دجلة 1', image: 'e12.png' },
-    { name: 'قاعة دجلة 2', image: 'e13.png' }
+    { name: 'قاعة المسلة', enName: 'Almasalla Hall', image: 'e1.png' },
+    { name: 'لوبي قاعة المسلة', enName: 'Almasalla Hall Lobby', image: 'e2.png' },
+    { name: 'لوبي قصر المؤتمرات', enName: 'Qasr Almoatamarat Lobby', image: 'e3.png' },
+    { name: 'قاعة المعرض', enName: 'Almaarad Hall', image: 'e4.png' },
+    { name: 'لوبي الحرير', enName: 'Alhareer Lobby', image: 'e5.png' },
+    { name: 'قاعة الزمرد', enName: 'Alzumurrud Hall', image: 'e6.png' },
+    { name: 'قاعة اللجين', enName: 'Allujain Hall', image: 'e7.png' },
+    { name: 'قاعة الملاك', enName: 'Almalak Hall', image: 'e8.png' },
+    { name: 'مسرح النور', enName: 'Alnoor Theater', image: 'e9.png' },
+    { name: 'قاعة المسك', enName: 'Almisk Hall', image: 'e11.png' },
+    { name: 'قاعة دجلة 1', enName: 'Dijla Hall 1', image: 'e12.png' },
+    { name: 'قاعة دجلة 2', enName: 'Dijla Hall 2', image: 'e13.png' }
   ];
   var MEETING_PARTS = {
     8: [
@@ -637,8 +628,8 @@
   fourthBedroom: 'Fourth Bedroom',
   livingView1: 'Living Room · View 1',
   livingView2: 'Living Room · View 2',
-  noorAngle1: 'Noor Theater · View 1',
-  noorAngle2: 'Noor Theater · View 2',
+  noorAngle1: 'Alnoor Theater · View 1',
+  noorAngle2: 'Alnoor Theater · View 2',
   kitchen: 'Kitchen',
   suiteAreas: 'Suite areas'
   }
@@ -656,13 +647,13 @@
   document.getElementById('panorama-view').dir = 'ltr';
   setText('lang-btn-text', t.langBtn);
   setText('txt-title', t.title);
-  setText('txt-subtitle', t.subtitle);
+
   setText('txt-rooms-title', t.roomsTitle);
-  setText('txt-rooms-desc', t.roomsDesc);
+
   setText('txt-apartments-title', t.apartmentsTitle);
-  setText('txt-apartments-desc', t.apartmentsDesc);
+
   setText('txt-meetings-title', t.meetingsTitle);
-  setText('txt-meetings-desc', t.meetingsDesc);
+
   document.getElementById('scene-nav').dataset.category = '';
   makeRoomButtons();
   setText('txt-back', t.back);
@@ -683,6 +674,9 @@
   function roomId(index) { return 'room-' + index; }
   function apartmentId(index) { return 'apartment-' + index; }
   function meetingId(index) { return 'meeting-' + index; }
+  function displayItemName(item) {
+    return currentCategory === 'meetings' && currentLang === 'en' ? item.enName : item.name;
+  }
   function activeItems() {
     return currentCategory === 'apartments' ? apartments :
       currentCategory === 'meetings' ? meetings : rooms;
@@ -776,7 +770,7 @@
   }
   function suitePartLabel(index, sceneId) {
     var part = suitePartForScene(index, sceneId);
-    return part ? i18n[currentLang][part.key] : activeItems()[index].name;
+    return part ? i18n[currentLang][part.key] : displayItemName(activeItems()[index]);
   }
   function updateSuiteSubnav() {
     var parts = suiteConfig(currentRoomIndex);
@@ -787,7 +781,7 @@
     panel.setAttribute('aria-hidden', String(!shown));
     panel.classList.toggle('four-parts', !!parts && parts.length === 4);
     panel.setAttribute('aria-label', shown ?
-      (currentLang === 'ar' ? 'أقسام ' : 'Areas of ') + activeItems()[currentRoomIndex].name :
+      (currentLang === 'ar' ? 'أقسام ' : 'Areas of ') + displayItemName(activeItems()[currentRoomIndex]) :
       i18n[currentLang].suiteAreas);
     if (!shown) return;
 
@@ -849,7 +843,7 @@
   var button = document.createElement('button');
   button.type = 'button';
   button.className = 'scene-btn';
-  button.setAttribute('aria-label', room.name);
+  button.setAttribute('aria-label', displayItemName(room));
   button.setAttribute('aria-pressed', 'false');
   var icon = document.createElement('i');
   icon.className = currentCategory === 'rooms' ? 'fa-solid fa-bed' :
@@ -857,7 +851,7 @@
   icon.setAttribute('aria-hidden', 'true');
   button.appendChild(icon);
   var label = document.createElement('span');
-  label.textContent = room.name;
+  label.textContent = displayItemName(room);
   button.appendChild(label);
   button.addEventListener('click', function() { switchRoom(index); });
   nav.appendChild(button);
