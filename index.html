@@ -152,16 +152,29 @@
   pointer-events: none;
   }
   .card-icon {
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
   background: #faf5ed;
   color: var(--primary-gold);
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(197, 160, 89, 0.24);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
   flex-shrink: 0;
+  overflow: hidden;
+  }
+  .card-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  }
+  @media (max-width: 360px) {
+    .card-icon { width: 60px; height: 60px; border-radius: 13px; }
+    .card-content { gap: 12px; }
   }
   .card-text h3 {
   font-size: 1.05rem;
@@ -514,7 +527,7 @@
   <div class="menu-list">
   <button type="button" class="menu-card" onclick="openTour(0, 'rooms')">
   <div class="card-content">
-  <div class="card-icon"><i class="fa-solid fa-bed"></i></div>
+  <div class="card-icon"><img src="L1.jpg" alt="" loading="lazy" decoding="async"></div>
   <div class="card-text">
   <h3 id="txt-rooms-title">Rooms</h3>
 
@@ -524,7 +537,7 @@
   </button>
   <button type="button" class="menu-card" onclick="openTour(0, 'apartments')">
     <div class="card-content">
-      <div class="card-icon"><i class="fa-solid fa-building" aria-hidden="true"></i></div>
+      <div class="card-icon"><img src="L2.jpg" alt="" loading="lazy" decoding="async"></div>
       <div class="card-text">
         <h3 id="txt-apartments-title">Apartments</h3>
 
@@ -534,7 +547,7 @@
   </button>
   <button type="button" class="menu-card" onclick="openTour(0, 'meetings')">
     <div class="card-content">
-      <div class="card-icon"><i class="fa-solid fa-people-group" aria-hidden="true"></i></div>
+      <div class="card-icon"><img src="L3.png" alt="" loading="lazy" decoding="async"></div>
       <div class="card-text">
         <h3 id="txt-meetings-title">Meeting Rooms</h3>
 
@@ -861,19 +874,36 @@
     }
     return null;
   }
+  // Rectilinear 360° projection distorts objects near the edges on wide screens.
+  // Narrower 80° framing suits laptops / desktops; preserve 100° on phones.
+  // Use viewport width rather than device detection, so it also works in split view.
+  function preferredHfov() {
+    return window.innerWidth >= 900 ? 80 : 100;
+  }
+  var lastPreferredHfov = preferredHfov();
+  function applyResponsiveHfovOnResize() {
+    var next = preferredHfov();
+    if (next === lastPreferredHfov) return;
+    lastPreferredHfov = next;
+    if (viewer && document.getElementById('tour-overlay').style.display === 'block' &&
+        typeof viewer.setHfov === 'function') {
+      viewer.setHfov(next, false);
+    }
+  }
+  window.addEventListener('resize', applyResponsiveHfovOnResize);
   function buildScenes() {
     var scenes = {};
     rooms.forEach(function(room, index) {
       scenes[roomId(index)] = {
         type: 'equirectangular', panorama: room.image,
-        pitch: 0, yaw: 0, hfov: 100
+        pitch: 0, yaw: 0, hfov: preferredHfov()
       };
     });
     Object.keys(SUITE_PARTS).forEach(function(key) {
       SUITE_PARTS[key].forEach(function(part) {
         if (!scenes[part.scene]) scenes[part.scene] = {
           type: 'equirectangular', panorama: part.image,
-          pitch: 0, yaw: 0, hfov: 100
+          pitch: 0, yaw: 0, hfov: preferredHfov()
         };
       });
     });
@@ -882,21 +912,21 @@
       APARTMENT_PARTS[key].forEach(function(part) {
         if (!scenes[part.scene]) scenes[part.scene] = {
           type: 'equirectangular', panorama: part.image,
-          pitch: 0, yaw: 0, hfov: 100
+          pitch: 0, yaw: 0, hfov: preferredHfov()
         };
       });
     });
     meetings.forEach(function(meeting, index) {
       scenes[meetingId(index)] = {
         type: 'equirectangular', panorama: meeting.image,
-        pitch: 0, yaw: 0, hfov: 100
+        pitch: 0, yaw: 0, hfov: preferredHfov()
       };
     });
     Object.keys(MEETING_PARTS).forEach(function(key) {
       MEETING_PARTS[key].forEach(function(part) {
         if (!scenes[part.scene]) scenes[part.scene] = {
           type: 'equirectangular', panorama: part.image,
-          pitch: 0, yaw: 0, hfov: 100
+          pitch: 0, yaw: 0, hfov: preferredHfov()
         };
       });
     });
@@ -1080,6 +1110,7 @@
       var instance = pannellum.viewer('panorama-view', {
         default: {
           firstScene: targetSceneId || baseSceneId(index),
+          hfov: preferredHfov(),
           sceneFadeDuration: reduceMotion ? 0 : 750,
           autoLoad: true,
           autoRotate: reduceMotion ? 0 : -2,
@@ -1275,7 +1306,7 @@
       createViewer(index);
       return;
     }
-    try { viewer.loadScene(sceneId); }
+    try { viewer.loadScene(sceneId, undefined, undefined, preferredHfov()); }
     catch (error) {
       console.error('Room switching failed:', error);
       showLoadError();
